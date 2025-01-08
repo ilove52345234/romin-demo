@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate SQL from Account JSON</title>
+</head>
+<body>
+<h1>帳號盤點小工具</h1>
+<div id="info">
+    <h2>注意事項</h2>
+    <ul>
+        <li>確保上傳的文件格式為 JSON。</li>
+        <li>處理完畢後，會顯示產生的SQL筆數，請核對產出SQL與筆數是否正確。</li>
+        <li>如遇到錯誤或無法處理的文件，請檢查文件格式和內容。</li>
+        <li>SQL若有更改，可自行在Source內找到相對應的function進行更改。</li>
+        <li>本工具使用html+javascript，僅做資料轉換。</li>
+        <li>DevMaster能處理的AWS權限僅以下："ReadOnly", "DevOps", "Collaborator" , "SE" ,"DBA" , "Net" ,"Infosec" ,"ECROperator"</li>
+        <li>不在上述列表的會匯出文檔。</li>
+        <li>小工具，沒有任何最佳化。</li>
+    </ul>
+</div>
+
+<div id="message" class="message"></div>
+<br><br>
+
+<input type="file" id="aes" multiple/>
+<button data-for="aes" disabled>AES</button>
+<span id="aesCount">處理的員工ID筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterApi" multiple/>
+<button data-for="devMasterApi" disabled>DevMaster-API</button>
+<span id="devMasterApiCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterDb" multiple/>
+<button data-for="devMasterDb" disabled>DevMaster-DB</button>
+<span id="devMasterDbCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterFileAccess" multiple/>
+<button data-for="devMasterFileAccess" disabled>DevMaster-File-Access</button>
+<span id="devMasterFileAccessCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="AWS" multiple/>
+<button data-for="AWS" disabled>AWS</button>
+<br><br>
+
+<div id="permissions-table">
+
+</div>
+<style>
+    #info {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    #info ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    .employee-row td {
+        border-top: 2px solid #000;
+        font-weight: bold;
+    }
+
+    .employee-row {
+        background-color: #f9f9f9;
+    }
+
+    .sub-row {
+        border-top: none;
+    }
+
+    .checkbox {
+        margin-right: 5px;
+    }
+
+    .copy-text {
+        display: inline-block;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .copy-text:hover {
+        background-color: #f0f0f0;
+    }
+
+    .tooltip {
+        position: absolute;
+        display: none;
+        padding: 5px;
+        margin-top: 5px;
+        border-radius: 4px;
+        background-color: #333;
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+</style>
+<script>
+    let filesData = [];
+    const fileProcessors = {};
+    init();
+
+
+    function generateAesDeleteSQL(empIdList) {
+        return `
+            DELETE
+            FROM m058001.crypt_query_auth
+            WHERE account_num IN (SELECT mem_num
+                                  FROM m058001.adm_account
+                                  WHERE employee_id IN (${empIdList}));`.trim();
+    }
+
+    function generateDevMasterApiDeleteSQL(empId, apiFunction, apiUrl) {
+        return ` DELETE
+                  FROM m058001.api_auth
+                  WHERE auth_id = (SELECT auth_id
+                                   FROM m058001.api_auth
+                                            JOIN m058001.adm_account
+                                                 ON m058001.api_auth.account_num = m058001.adm_account.mem_num
+                                            JOIN m058001.api_function ON m058001.api_auth.api_function_id =
+                                                                         m058001.api_function.api_function_id
+                                            JOIN m058001.api_url
+                                                 ON m058001.api_auth.api_url_id = m058001.api_url.api_url_id
+                                   WHERE m058001.adm_account.employee_id = '${empId}'
+                                     AND m058001.api_function.function_name = '${apiFunction}'
+                                     AND m058001.api_url.url = '${apiUrl}');`.trim();
+    }
+
+    function generateDevMasterDbDeleteSQL(empName, dbName, serverName) {
+        return ` DELETE
+                            FROM m058001.db_auth
+                            WHERE auth_id = (SELECT auth_id
+                                             FROM m058001.db_auth
+                                                      JOIN m058001.adm_account
+                                                           ON m058001.db_auth.account_num = m058001.adm_account.mem_num
+                                                      JOIN m058001.db_list
+                                                           ON m058001.db_auth.server_id = m058001.db_list.db_server_id
+                                                      JOIN m058001.db_schema_mysql
+                                                           ON m058001.db_auth.schema_id = m058001.db_schema_mysql.schema_id
+                       WHERE mem_ad = '${empName}'
+                                               AND database_name = '${dbName}'
+                                               AND server_name = '${serverName}'                      );
+                        `.trim();
+    }
+
+    function generateXevMasterFileAccessDeleteSQL(empName, serverName, displayName) {
+        return `
+                            DELETE
+                            FROM m058001.upload_server_auth
+                            WHERE auth_id = (SELECT auth_id
+                                             FROM m058001.upload_server_auth
+                                                      JOIN m058001.adm_account
+                                                           ON m058001.upload_server_auth.account_num = m058001.adm_account.mem_num
+                                                      JOIN m058001.upload_server
+                                                           ON m058001.upload_server_auth.upload_server_id =
+                                                              m058001.upload_server.upload_server_id
+                                             WHERE mem_ad = '${empName}'
+                                               AND server_name = '${serverName}'
+                                               AND display_name = '${displayName}');
+                        `.trim();
+    }
+
+    // 設置處理邏輯與事件觸發
+    function init() {
+        setupEventListeners();
+
+        setFileProcessor('aes', function (data) {
+
+            const empIds = new Set();
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "emp_id") {
+                        const empId = obj.orig_perm.owner_id.content;
+                        if (empId) {
+                            empIds.add(empId);
+                        }
+                    }
+                });
+
+            let sql = '';
+            if (empIds.size > 0) {
+                const empIdList = [...empIds].map(id => `'${id}'`).join(', ');
+                sql = generateAesDeleteSQL(empIdList);
+            } else {
+                console.log("沒有需要刪除的員工ID.");
+            }
+            const output = sql;
+            const filename = 'aes_delete.sql';
+            document.getElementById('aesCount').textContent = `處理的員工ID筆數: ${empIds.size}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterApi', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "emp_id") {
+                        const empId = obj.orig_perm.owner_id.content;
+                        const apiFunction = obj.orig_perm.extra["API Function"];
+                        const apiUrl = obj.orig_perm.extra["API URL"];
+                        const sql = generateDevMasterApiDeleteSQL(empId, apiFunction, apiUrl);
+                        sqlQueries.push(sql.trim());
+                        count++;
+
+                    }
+                });
+
+            const filename = 'onlineApi_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterApiCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterDb', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const dbName = obj.orig_perm.extra["Database Name"];
+                        const serverName = obj.orig_perm.extra["Server Name"];
+                        const sql = generateDevMasterDbDeleteSQL(empName, dbName, serverName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'onlineDb_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterDbCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterFileAccess', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const serverName = obj.orig_perm.extra["主機名稱"];
+                        const displayName = obj.orig_perm.extra["顯示名稱"];
+                        const sql = generateXevMasterFileAccessDeleteSQL(empName, serverName, displayName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'file_access_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterFileAccessCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('AWS', function (data) {
+            const array = ["ReadOnly", "DevOps", "Collaborator" , "SE" ,"DBA" , "Net" ,"Infosec" ,"ECROperator"];
+            let result = [];
+
+            const groupedByContent = data.filter(obj => obj.suggestion.kind === "delete")
+                .reduce((acc, item) => {
+                    const content = item.orig_perm.owner_id.content;
+                    const awsAccount = item.orig_perm.extra["AWS帳號"];
+                    const parts = awsAccount.split('-');
+                    let purview = parts? parts[parts.length - 1]:null;
+                    const reason = `[${purview}] ${item.suggestion.reason}`;
+                    const formattedAwsAccount = parts ? `104aws${parts[1]}` : null;
+                    const notContains = !array.some(substring => purview.includes(substring));
+
+                    if (purview != null && notContains) {
+                        result.push(`${content.padEnd(15, ' ')}     |    ${formattedAwsAccount.padEnd(15, ' ')}    | ${reason} `);
+                        return acc ;
+                    }
+
+                    if (!formattedAwsAccount) return acc;
+                    if (!acc[content]) {
+                        acc[content] = [];
+                    }
+                    acc[content].push({[formattedAwsAccount]: reason});
+                    return acc;
+                }, {});
+
+            const sortedGroupedByContent = Object.keys(groupedByContent).reduce((acc, content) => {
+                acc[content] = groupedByContent[content].sort((a, b) => {
+                    const aKey = Object.keys(a)[0];
+                    const bKey = Object.keys(b)[0];
+                    return aKey.localeCompare(bKey);
+                });
+                return acc;
+            }, {});
+
+            let html = `<table>
+                <tbody>`;
+
+            for (const [employee, permissions] of Object.entries(sortedGroupedByContent)) {
+                html += `
+        <tr class="employee-row">
+            <td>
+                <input type="checkbox" class="employee-checkbox" data-employee="${employee}">
+            </td>
+            <td colspan="2">
+               <span class="copy-text" onclick="copyText('${employee}' ,this)">${employee}</span>
+               <div class="tooltip">已複製</div>
+            </td>
+        </tr>`;
+
+                permissions.forEach(permission => {
+                    const awsAccount = Object.keys(permission)[0];
+                    const reason = permission[awsAccount];
+                    html += `
+        <tr class="permission-row" data-employee="${employee}">
+            <td>
+                <input type="checkbox" class="permission-checkbox">
+            </td>
+            <td>
+                    <span class="copy-text" onclick="copyText('${awsAccount}' , this)">${awsAccount}</span>
+                                <div class="tooltip">已複製</div>
+
+            </td>
+            <td>${reason}</td>
+        </tr>`;
+                });
+            }
+
+            html += `
+        </tbody>
+    </table>`;
+
+            document.getElementById('permissions-table').innerHTML = html;
+
+            document.querySelectorAll('.employee-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const employee = this.dataset.employee;
+                    document.querySelectorAll(`.permission-row[data-employee="${employee}"] .permission-checkbox`).forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            });
+
+            let output = null;
+            let filename = null;
+            if (result.length !== 0) {
+                output = result.join('\n\n');
+                filename = 'aws_delete.txt';
+            }
+            return {output, filename};
+        });
+    }
+
+    // 處理文件上傳
+    function handleFileInput(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    const id = fileInput.id; // 根據標籤 ID 獲取對應的處理邏輯
+                    filesData.push({file, data: jsonData, id});
+                    checkFilesReady();
+                } catch (error) {
+                    alert(`錯誤的 JSON file: ${file.name}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // 檢查文件並根據情況更新按鈕狀態
+    function checkFilesReady() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            const button = document.querySelector(`button[data-for="${input.id}"]`);
+            const filesForInput = filesData.filter(fileData => fileData.id === input.id);
+            if (button) {
+                button.disabled = filesForInput.length === 0;
+            }
+        });
+    }
+
+    // 下載方法
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], {type: 'text/plain'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+
+    // 根據ID處理並下載
+    function convertAndDownload(event) {
+        const button = event.target;
+        const fileId = button.getAttribute('data-for');
+        const filesForId = filesData.filter(fileData => fileData.id === fileId);
+
+        filesForId.forEach(fileData => {
+            const {file, data} = fileData;
+            const processor = fileProcessors[fileId];
+            if (processor) {
+                const {output, filename} = processor(data);
+                if (output && filename) {
+                    downloadFile(filename, output);
+                } else {
+                    alert(`檔案處理失敗: ${file.name}`);
+                }
+            } else {
+                alert(`沒有設置處理邏輯: ${fileId}`);
+            }
+        });
+    }
+
+    // 設置文件處理邏輯
+    function setFileProcessor(id, processor) {
+        fileProcessors[id] = processor;
+    }
+
+    // 設置事件處理
+    function setupEventListeners() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', handleFileInput);
+        });
+
+        const buttons = document.querySelectorAll('button[data-for]');
+        buttons.forEach(button => {
+            button.addEventListener('click', convertAndDownload);
+        });
+    }
+
+    function copyText(text, element) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                const tooltip = element.nextElementSibling;
+                tooltip.style.display = 'block';
+                setTimeout(() => {
+                    tooltip.style.display = 'none';
+                }, 2000);
+            })
+            .catch(err => {
+                alert('複製失敗');
+            });
+    }
+</script>
+</body>
+</html>

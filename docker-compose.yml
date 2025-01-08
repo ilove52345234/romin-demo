@@ -1,0 +1,67 @@
+version: "3.5"
+
+services:
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - redis-network
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+        reservations:
+          memory: 2048M
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    networks:
+      - redis-network
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight:/data
+    restart: unless-stopped
+
+#  kafka:
+#    image: bitnami/kafka:latest
+#    ports:
+#      - "9092:9092"
+#    environment:
+#      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+#      - ALLOW_PLAINTEXT_LISTENER=yes
+#      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT
+#      - KAFKA_CFG_LISTENERS=CLIENT://:9092
+#      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://10.2.10.19:9092
+#      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+#    restart: always
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 4096M
+#        reservations:
+#          memory: 4096M
+#    depends_on:
+#      - zookeeper
+#
+#  zookeeper:
+#    image: bitnami/zookeeper:latest
+#    environment:
+#      - ALLOW_ANONYMOUS_LOGIN=yes
+#    restart: always
+
+
+
+volumes:
+  redis-insight:
+    driver: local
+networks:
+  redis-network:
+    driver: bridge
+

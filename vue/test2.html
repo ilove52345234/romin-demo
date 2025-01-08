@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Generator</title>
+    <style>
+        .input-container {
+            margin-bottom: 10px;
+        }
+        .input-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<h1>SQL Generator</h1>
+
+<!-- File upload and SQL template input -->
+<div>
+    <label for="fileUpload">Upload JSON file:</label>
+    <input type="file" id="fileUpload" accept=".json">
+</div>
+
+<div>
+    <label for="sqlTemplate">Enter SQL Template:</label>
+    <textarea id="sqlTemplate" rows="6" cols="80" placeholder="Enter your SQL template here..."></textarea>
+</div>
+
+<div id="inputsContainer"></div>
+
+<div>
+    <label for="sqlMode">Select SQL Mode:</label>
+    <select id="sqlMode">
+        <option value="single">Single SQL Statements</option>
+        <option value="in">IN Clause</option>
+    </select>
+</div>
+
+<button onclick="generateSQL()">Generate SQL</button>
+
+<h2>Generated SQL Statements</h2>
+<pre id="output"></pre>
+
+<script>
+    let jsonData = {};
+
+    // Handle file upload
+    document.getElementById('fileUpload').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    jsonData = JSON.parse(e.target.result);
+                    createInputFields(document.getElementById('sqlTemplate').value);
+                } catch (error) {
+                    console.error('Failed to parse JSON:', error);
+                    alert('Invalid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // Function to create input fields dynamically based on SQL template
+    function createInputFields(template) {
+        const inputsContainer = document.getElementById('inputsContainer');
+        inputsContainer.innerHTML = '';
+        const matches = template.match(/\$\{([^\}]+)\}/g);
+        if (matches) {
+            const uniqueFields = new Set(matches.map(match => match.replace(/\${|}/g, '')));
+            uniqueFields.forEach(field => {
+                const inputDiv = document.createElement('div');
+                inputDiv.classList.add('input-container');
+                inputDiv.innerHTML = `
+                    <label for="${field}">${field}</label>
+                    <input type="text" id="${field}" data-field="${field}" placeholder="Enter ${field}">
+                `;
+                inputsContainer.appendChild(inputDiv);
+            });
+        }
+    }
+
+    // Generate SQL statements based on user input and JSON data
+    function generateSQL() {
+        const sqlTemplate = document.getElementById('sqlTemplate').value;
+        const sqlMode = document.getElementById('sqlMode').value;
+        const inputs = document.querySelectorAll('#inputsContainer input');
+        const mapping = {};
+        inputs.forEach(input => {
+            const field = input.dataset.field;
+            mapping[field] = input.value;
+        });
+
+        console.log(mapping)
+        const output = document.getElementById('output');
+        output.textContent = '';
+
+        const sqlStatements = [];
+
+        if (sqlMode === 'single') {
+            jsonData.forEach(obj => {
+                let sql = sqlTemplate;
+                for (const [key, value] of Object.entries(mapping)) {
+                    console.log(key);
+                    console.log(value);
+
+                    const deepValue = getValueFromPath(obj, value);
+                    console.log(deepValue);
+                    sql = sql.replace(`\${${key}}`, deepValue !== undefined ? deepValue : '');
+                }
+                sqlStatements.push(sql);
+            });
+        } else if (sqlMode === 'in') {
+            const values = jsonData.map(obj => getValueFromPath(obj, mapping[Object.keys(mapping)[0]]));
+            const inClause = values.map(value => `'${value}'`).join(', ');
+            let sql = sqlTemplate.replace(/\${inValues}/g, inClause);
+            sqlStatements.push(sql);
+        }
+
+        output.textContent = sqlStatements.join('\n\n');
+    }
+
+    // Function to get value from nested JSON object using a path
+    // function getValueFromPath(obj, path) {
+    //     console.log(obj, path);
+    //     return path.split('.').reduce((acc, part) => {
+    //         return acc && acc[part] !== undefined ? acc[part] : undefined;
+    //     }, obj);
+    // }
+    function getValueFromPath(obj, path) {
+        let current = obj;
+        let i = 0;
+        let len = path.length;
+
+        while (i < len) {
+            // Handle the key part
+            let key = '';
+            while (i < len && path[i] !== '.' && path[i] !== '[') {
+                key += path[i++];
+            }
+
+            // Trim any potential white spaces
+            key = key.trim();
+
+            // Access the current value based on the key
+            if (key) {
+                current = current[key];
+            }
+
+            // If we reach the end, return the value
+            if (i >= len) {
+                return current;
+            }
+
+            // Skip the dot
+            if (path[i] === '.') {
+                i++;
+            }
+
+            // Handle the opening bracket [
+            if (path[i] === '[') {
+                i++;
+                // Check if it's a string in quotes
+                if (path[i] === '"' || path[i] === "'") {
+                    let quote = path[i++];
+                    let stringKey = '';
+                    while (i < len && path[i] !== quote) {
+                        stringKey += path[i++];
+                    }
+                    if (path[i] === quote) {
+                        i++;
+                    }
+                    key = stringKey;
+                    current = current[key];
+                } else {
+                    // Handle unquoted keys (e.g., [key])
+                    let stringKey = '';
+                    while (i < len && path[i] !== ']') {
+                        stringKey += path[i++];
+                    }
+                    if (path[i] === ']') {
+                        i++;
+                    }
+                    key = stringKey.trim();
+                    current = current[key];
+                }
+            }
+        }
+
+        return current;
+    }
+
+
+
+    // Watch for changes in the SQL template and update input fields
+    document.getElementById('sqlTemplate').addEventListener('input', function() {
+        createInputFields(this.value);
+    });
+</script>
+</body>
+</html>

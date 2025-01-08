@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate SQL from Account JSON</title>
+</head>
+<body>
+<h1>帳號盤點小工具</h1>
+<div id="info">
+</div>
+
+<div id="message" class="message"></div>
+<br><br>
+<div>
+    <input type="file" id="upload"/>
+</div>
+<br><br>
+<div>
+    <input type="file" id="fileInput" accept=".txt"/>
+</div>
+<br><br>
+<button id="readFileBtn">讀取文件</button>
+
+<!-- 顯示文件內容的區域 -->
+<pre id="fileContent"></pre>
+
+<br><br>
+<input type="file" id="aes" multiple/>
+<button data-for="aes" disabled>TEST</button>
+<br><br>
+
+
+<input type="file" id="fileJson" accept=".json" multiple/>
+<input type="file" id="fileExcel" accept=".xlsx" multiple/>
+<button onclick="compareMsid()">比對msid</button>
+<br><br>
+
+<input type="file" id="devMasterDb" multiple/>
+<button data-for="devMasterDb" disabled>DevMaster-DB</button>
+<span id="devMasterDbCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterFileAccess" multiple/>
+<button data-for="devMasterFileAccess" disabled>DevMaster-File-Access</button>
+<span id="devMasterFileAccessCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="AWS" multiple/>
+<button data-for="AWS" disabled>AWS</button>
+<br><br>
+
+<div id="permissions-table">
+
+</div>
+<style>
+    #info {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    #info ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    .employee-row td {
+        border-top: 2px solid #000;
+        font-weight: bold;
+    }
+
+    .employee-row {
+        background-color: #f9f9f9;
+    }
+
+    .sub-row {
+        border-top: none;
+    }
+
+    .checkbox {
+        margin-right: 5px;
+    }
+
+    .copy-text {
+        display: inline-block;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .copy-text:hover {
+        background-color: #f0f0f0;
+    }
+
+    .tooltip {
+        position: absolute;
+        display: none;
+        padding: 5px;
+        margin-top: 5px;
+        border-radius: 4px;
+        background-color: #333;
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+</style>
+<script>
+    let filesData = [];
+    const fileProcessors = {};
+    init();
+    // 當用戶選擇文件時，將文件存入變量
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+        selectedFile = event.target.files[0];  // 儲存選中的文件
+    });
+    document.getElementById('readFileBtn').addEventListener('click', function () {
+        if (selectedFile) {
+            readTextFile(selectedFile, function (content) {
+                // 使用正則表達式提取 message_id
+                const messageIds = Array.from(content.matchAll(/where message_id = '(.+?)'/g)).map(match => match[1]);
+
+                console.log(messageIds.length)
+// 拼接成 IN 條件
+                const inClause = messageIds.map(id => `'${id}'`).join(', ');
+
+// 生成批量更新語句
+                const batchUpdateSql = `
+                    UPDATE ws_sms.sms2_information
+                    SET point  = 1,
+                        status = 3
+                    WHERE message_id IN (${inClause});
+                `;
+                console.log(batchUpdateSql)
+            });
+        } else {
+            alert("請先選擇一個文件");
+        }
+    });
+
+    // 讀取文本文件的函式
+    function readTextFile(file, callback) {
+        const reader = new FileReader();  // 創建 FileReader 來讀取文件
+
+        reader.onload = function (e) {
+            const content = e.target.result;  // 獲取文件內容
+            callback(content);  // 將文件內容傳遞給回調函式
+        };
+
+        reader.onerror = function () {
+            console.error("文件讀取失敗");
+        };
+
+        reader.readAsText(file);  // 讀取文件為純文本
+    }
+
+
+    document.getElementById('upload').addEventListener('change', handleFile, false);
+
+
+    function generateAesDeleteSQL(empIdList) {
+        return `
+            DELETE
+            FROM m058001.crypt_query_auth
+            WHERE account_num IN (SELECT mem_num
+                                  FROM m058001.adm_account
+                                  WHERE employee_id IN (${empIdList}));`.trim();
+    }
+
+    function readJsonFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+                    resolve(jsonData);
+                } catch (error) {
+                    reject('JSON 解析失敗');
+                }
+            };
+            reader.onerror = function () {
+                reject('文件讀取失敗');
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    function readExcelFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    resolve(jsonData);
+                } catch (error) {
+                    reject('Excel 解析失敗');
+                }
+            };
+            reader.onerror = function () {
+                reject('文件讀取失敗');
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    async function compareMsid() {
+        const jsonFileInput = document.getElementById('fileJson');
+        const excelFileInput = document.getElementById('fileExcel');
+
+        if (jsonFileInput.files.length === 0 || excelFileInput.files.length === 0) {
+            alert('請選擇 JSON 和 Excel 文件');
+            return;
+        }
+
+        try {
+            const jsonData = await readJsonFile(jsonFileInput.files[0]);
+            const excelData = await readExcelFile(excelFileInput.files[0]);
+
+            console.log(jsonData);
+            console.log(excelData);
+
+
+            const excelMessageIdMap = new Map();
+            excelData.forEach(row => {
+                const messageId = row.messageId;
+
+                if (excelMessageIdMap.has(messageId)) {
+                    let oldRow = excelMessageIdMap.get(messageId);
+                    row.point = oldRow.point + row.point;  // 將點數相加
+                }
+                excelMessageIdMap.set(messageId, row);
+            });
+
+
+            const matchedJsonData = jsonData.filter(item => excelMessageIdMap.has(item.messageId));
+
+            // 將 jsonData 根據 status 分組
+            const groupedJsonData = matchedJsonData.reduce((groups, item) => {
+                const providerId = item.providerId || 'undefined'; // 處理 status 可能為 undefined 的情況
+                if (!groups[providerId]) {
+                    groups[providerId] = [];
+                }
+                groups[providerId].push(item);
+                return groups;
+            }, {});
+
+
+            // 計算並列出分組後的 jsonData 的點數總和
+
+            let error = [];
+            let success = [];
+            let c = [];
+            let f = [];
+            let insert = new Map();
+            console.log(groupedJsonData);
+            for (const [providerId, items] of Object.entries(groupedJsonData)) {
+
+                if (providerId === '1') {
+                    items.forEach(item => {
+                        if (item.status === 4) {
+                            error.push(excelMessageIdMap.get(item.messageId));
+                        }
+
+                        if (item.status === 3) {
+                            let excel = excelMessageIdMap.get(item.messageId);
+                            if (excel.point !== item.point) {
+                                item.point = excel.point;
+                                success.push(item);
+                            } else {
+                                f.push(item);
+                            }
+                        }
+                    })
+                }
+
+                if (providerId === '2') {
+                    items.forEach(item => {
+                        if (item.status === 4) {
+                            error.push(excelMessageIdMap.get(item.messageId));
+                        }
+
+                        if (item.status === 3) {
+                            insert.set(item, excelMessageIdMap.get(item.messageId));
+                        }
+                    })
+                }
+            }
+// 計算 a, b, c 陣列中的點數總和
+            const totalError = error.reduce((sum, item) => sum + (item.point || 0), 0);
+            const totalSuccess = success.reduce((sum, item) => sum + (item.point || 0), 0);
+            const totalF = f.reduce((sum, item) => sum + (item.point || 0), 0);
+            // const totalC = c.reduce((sum, item) => sum + (item.point || 0), 0);
+
+// 計算 d Map 中的點數總和
+            let totalInsert = 0;
+            insert.forEach(value => {
+                totalInsert += value.point || 0; // 假設 Map 的 value 也有 point 屬性
+            });
+
+
+            // console.log(error);
+            // console.log(success);
+            // console.log(insert);
+
+
+            let sqlError = [];
+            let sqlSuccess = [];
+            let sqlInsert = [];
+
+            error.forEach(obj => {
+                const sql = `update ws_sms.sms2_information
+                             set provider_id              = 1,
+                                 status                   = 3,
+                                 point                    = ${obj.point},
+                                 batch_id                 = '${obj.batchId}'
+                                 where message_id = '${obj.messageId}'; `
+                sqlError.push(sql.trim());
+            });
+
+            success.forEach(obj => {
+                const sql = `update ws_sms.sms2_information
+                             set point = ${obj.point}
+                             where message_id = '${obj.messageId}'; `
+                sqlSuccess.push(sql.trim());
+            });
+
+            insert.forEach((v, k) => {
+                const sql = `insert into ws_sms.sms2_information (id, message_id, sms_consumer_id, project_code,
+                                                                  priority,
+                                                                  sms_attribute_id, phone_number, message_content,
+                                                                  provider_sms_id, provider_id,
+                                                                  point, status, provider_status,
+                                                                  provider_status_message, provider_response,
+                                                                  create_time, sent_to_provider_time,
+                                                                  received_from_provider_time, batch_id)
+                             values (null, '${k.messageId}', 3, '${k.projectCode}', ${k.priority},
+                                     1, '${k.phoneNumber}', '${k.messageContent}', '${k.providerSmsId}', 1,
+                                     ${v.point}, 3, '100', '', '',
+                                     ' ${k.createTime}', '${k.sentToProviderTime}', '${k.receivedFromProviderTime}',
+                                     '${v.batchId}');`
+                sqlInsert.push(sql.trim());
+            });
+
+            let errorOutput = sqlError.join('\n\n');
+            let successOutput = sqlSuccess.join('\n\n');
+            let insertOutput = sqlInsert.join('\n\n');
+// 分別生成三個檔案
+            downloadFile('errorOutput.txt', errorOutput);
+            downloadFile('successOutput.txt', successOutput);
+            downloadFile('insertOutput.txt', insertOutput);
+            console.log("失敗回壓 點數總和:", totalError);
+            console.log("加總回家 點數總和:", totalSuccess);
+            console.log("新增資料 點數總和:", totalInsert);
+            console.log("完全一致 點數總和:", totalF);
+            // console.log("c 點數總和:", totalC);
+            console.log("點數總和:", totalError + totalSuccess + totalInsert + totalF);
+
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    // 設置處理邏輯與事件觸發
+    function init() {
+        // setupEventListeners();
+
+        setFileProcessor('aes', function (data) {
+            const isDomesticPhoneNumber = (phoneNumber) => {
+                return (phoneNumber.startsWith('+8869') && phoneNumber.length === 12) ||
+                    (phoneNumber.startsWith('09') && phoneNumber.length === 10);
+            };
+
+// 初始化統計變數
+            let totalCount = 0;
+            let totalPoints = 0;
+
+// 過濾出國外的手機號碼且status為2或3的資料，並統計總數與point加總
+            data.forEach(item => {
+                const {phoneNumber, status, point} = item;
+                if (!isDomesticPhoneNumber(phoneNumber) && status === 3) {
+                    totalCount++;  // 符合條件的資料總數
+                    totalPoints += point || 0;  // 確保如果point是null或undefined，會被當作0處理
+                }
+            });
+
+// 輸出結果
+            console.log("符合條件的總數:", totalCount);
+            console.log("符合條件的point加總:", totalPoints);
+        });
+
+        setFileProcessor('msid', function (data) {
+            const empIds = new Set();
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "emp_id") {
+                        const empId = obj.orig_perm.owner_id.content;
+                        if (empId) {
+                            empIds.add(empId);
+                        }
+                    }
+                });
+
+            let sql = '';
+            if (empIds.size > 0) {
+                const empIdList = [...empIds].map(id => `'${id}'`).join(', ');
+                sql = generateAesDeleteSQL(empIdList);
+            } else {
+                console.log("沒有需要刪除的員工ID.");
+            }
+            const output = sql;
+            const filename = 'aes_delete.sql';
+            document.getElementById('aesCount').textContent = `處理的員工ID筆數: ${empIds.size}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterDb', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const dbName = obj.orig_perm.extra["Database Name"];
+                        const serverName = obj.orig_perm.extra["Server Name"];
+                        const sql = generateDevMasterDbDeleteSQL(empName, dbName, serverName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'onlineDb_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterDbCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterFileAccess', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const serverName = obj.orig_perm.extra["主機名稱"];
+                        const displayName = obj.orig_perm.extra["顯示名稱"];
+                        const sql = generateXevMasterFileAccessDeleteSQL(empName, serverName, displayName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'file_access_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterFileAccessCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('AWS', function (data) {
+            const array = ["ReadOnly", "DevOps", "Collaborator", "SE", "DBA", "Net", "Infosec", "ECROperator"];
+            let result = [];
+
+            const groupedByContent = data.filter(obj => obj.suggestion.kind === "delete")
+                .reduce((acc, item) => {
+                    const content = item.orig_perm.owner_id.content;
+                    const awsAccount = item.orig_perm.extra["AWS帳號"];
+                    const parts = awsAccount.split('-');
+                    let purview = parts ? parts[parts.length - 1] : null;
+                    const reason = `[${purview}] ${item.suggestion.reason}`;
+                    const formattedAwsAccount = parts ? `104aws${parts[1]}` : null;
+                    const notContains = !array.some(substring => purview.includes(substring));
+
+                    if (purview != null && notContains) {
+                        result.push(`${content.padEnd(15, ' ')}     |    ${formattedAwsAccount.padEnd(15, ' ')}    | ${reason} `);
+                        return acc;
+                    }
+
+                    if (!formattedAwsAccount) return acc;
+                    if (!acc[content]) {
+                        acc[content] = [];
+                    }
+                    acc[content].push({[formattedAwsAccount]: reason});
+                    return acc;
+                }, {});
+
+            const sortedGroupedByContent = Object.keys(groupedByContent).reduce((acc, content) => {
+                acc[content] = groupedByContent[content].sort((a, b) => {
+                    const aKey = Object.keys(a)[0];
+                    const bKey = Object.keys(b)[0];
+                    return aKey.localeCompare(bKey);
+                });
+                return acc;
+            }, {});
+
+            let html = `<table>
+                <tbody>`;
+
+            for (const [employee, permissions] of Object.entries(sortedGroupedByContent)) {
+                html += `
+        <tr class="employee-row">
+            <td>
+                <input type="checkbox" class="employee-checkbox" data-employee="${employee}">
+            </td>
+            <td colspan="2">
+               <span class="copy-text" onclick="copyText('${employee}' ,this)">${employee}</span>
+               <div class="tooltip">已複製</div>
+            </td>
+        </tr>`;
+
+                permissions.forEach(permission => {
+                    const awsAccount = Object.keys(permission)[0];
+                    const reason = permission[awsAccount];
+                    html += `
+        <tr class="permission-row" data-employee="${employee}">
+            <td>
+                <input type="checkbox" class="permission-checkbox">
+            </td>
+            <td>
+                    <span class="copy-text" onclick="copyText('${awsAccount}' , this)">${awsAccount}</span>
+                                <div class="tooltip">已複製</div>
+
+            </td>
+            <td>${reason}</td>
+        </tr>`;
+                });
+            }
+
+            html += `
+        </tbody>
+    </table>`;
+
+            document.getElementById('permissions-table').innerHTML = html;
+
+            document.querySelectorAll('.employee-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const employee = this.dataset.employee;
+                    document.querySelectorAll(`.permission-row[data-employee="${employee}"] .permission-checkbox`).forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            });
+
+            let output = null;
+            let filename = null;
+            if (result.length !== 0) {
+                output = result.join('\n\n');
+                filename = 'aws_delete.txt';
+            }
+            return {output, filename};
+        });
+    }
+
+
+    // 下載方法
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], {type: 'text/plain'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+
+    // 根據ID處理並下載
+    function convertAndDownload(event) {
+        const button = event.target;
+        const fileId = button.getAttribute('data-for');
+        const filesForId = filesData.filter(fileData => fileData.id === fileId);
+
+        filesForId.forEach(fileData => {
+            const {file, data} = fileData;
+            const processor = fileProcessors[fileId];
+            if (processor) {
+                const {output, filename} = processor(data);
+                if (output && filename) {
+                    downloadFile(filename, output);
+                } else {
+                    alert(`檔案處理失敗: ${file.name}`);
+                }
+            } else {
+                alert(`沒有設置處理邏輯: ${fileId}`);
+            }
+        });
+    }
+
+    // 設置文件處理邏輯
+    function setFileProcessor(id, processor) {
+        fileProcessors[id] = processor;
+    }
+
+    // 設置事件處理
+    function setupEventListeners() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', handleFileInput);
+        });
+
+        const buttons = document.querySelectorAll('button[data-for]');
+        buttons.forEach(button => {
+            button.addEventListener('click', convertAndDownload);
+        });
+    }
+
+    function copyText(text, element) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                const tooltip = element.nextElementSibling;
+                tooltip.style.display = 'block';
+                setTimeout(() => {
+                    tooltip.style.display = 'none';
+                }, 2000);
+            })
+            .catch(err => {
+                alert('複製失敗');
+            });
+    }
+
+
+    function convertToCSV(data) {
+        // const headers = [
+        //     "batchId",
+        //     "messageId",
+        //     "createTime",
+        //     "providerStatusMessage",
+        //     "receivedFromProviderTime",
+        //     "sentToProviderTime",
+        //     "smsConsumerId",
+        //     "phoneNumber",
+        //     "point",
+        //     "priority",
+        //     "projectCode",
+        //     "providerId",
+        //     "providerSmsId",
+        //     "status",
+        //     "id"];
+
+        const headers = [
+            "batchId",
+            "messageId",
+            "建立時間",
+            "送出至簡訊廠商時間",
+            "廠商回應簡訊發送狀態時間",
+            "廠商回覆訊息",
+            "點數",
+            "手機",
+            "內容",
+        ];
+
+
+        const csvRows = [headers.join(",")];
+
+        data.forEach(item => {
+            const row = [item.batchId,
+                item.messageId,
+                item.createTime,
+                item.sentToProviderTime,
+                item.receivedFromProviderTime,
+                item.providerStatusMessage,
+                item.point,
+                item.phoneNumber,
+                item.messageContent,].join(",");
+            csvRows.push(row);
+        });
+
+        return "\ufeff" + csvRows.join("\n");
+    }
+
+    // 創建並下載 CSV 文件
+    function downloadCSV(csv) {
+        const csvFile = new Blob([csv], {type: 'text/csv'});
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'data.csv';
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    function handleFile(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheetName = workbook.SheetNames[0]; // 讀取第一個工作表
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            // console.log(jsonData); // 將表格數據轉換為 JSON 格式並打印出來
+            // 將 JSON 數據轉換為字符串
+            const jsonString = JSON.stringify(jsonData, null, 2);
+            // 創建 Blob 對象，並指定文件類型為 JSON
+            const blob = new Blob([jsonString], {type: 'application/json'});
+
+            // 創建下載鏈接
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'data.json';
+
+            // 自動觸發點擊下載文件
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+</body>
+</html>
