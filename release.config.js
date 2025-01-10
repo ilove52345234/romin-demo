@@ -3,17 +3,17 @@ module.exports = {
         {
             name: 'lab',
             channel: 'lab',
-            tagFormat: 'lab/v${nextRelease.version}'
+            // tagFormat: 'lab/v${nextRelease.version}'
         },
         {
             name: 'staging',
             channel: 'staging',
-            tagFormat: 'staging/v${nextRelease.version}'
+            // tagFormat: 'staging/v${nextRelease.version}'
         },
         {
             name: 'master',
             channel: 'prod',
-            tagFormat: 'prod/v${nextRelease.version}'
+            // tagFormat: 'prod/v${nextRelease.version}'
         },
     ],
     plugins: [
@@ -21,9 +21,10 @@ module.exports = {
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
         '@semantic-release/github',
-        {
-            "name": "@semantic-release/git",
-            "tagFormat": "${nextRelease.version}"
-        }
+        '@semantic-release/git'
+        // {
+        //     "name": "@semantic-release/git",
+        //     "tagFormat": "${nextRelease.version}"
+        // }
     ]
 };
