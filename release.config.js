@@ -8,7 +8,7 @@ module.exports = {
         {
             name: 'staging',
             channel: 'staging',
-            tagFormat: 'staging/v${version}'
+            tagFormat: 'staging/${nextRelease.version}'
         },
         {
             name: 'master',
