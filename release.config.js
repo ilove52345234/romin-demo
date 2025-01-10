@@ -3,17 +3,17 @@ module.exports = {
         {
             name: 'lab',
             channel: 'lab',
-            tagFormat: 'lab/v${version}'
+            tagFormat: 'lab/v${nextRelease.version}'
         },
         {
             name: 'staging',
             channel: 'staging',
-            tagFormat: 'staging/v${version}'
+            tagFormat: 'staging/v${nextRelease.version}'
         },
         {
             name: 'master',
             channel: 'prod',
-            tagFormat: 'prod/v${version}'
+            tagFormat: 'prod/v${nextRelease.version}'
         },
     ],
     plugins: [
@@ -23,7 +23,7 @@ module.exports = {
         '@semantic-release/github',
         {
             "name": "@semantic-release/git",
-            "tagFormat": "${version}"
+            "tagFormat": "${nextRelease.version}"
         }
     ]
 };
