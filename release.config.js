@@ -8,7 +8,7 @@ module.exports = {
         {
             name: 'staging',
             channel: 'staging',
-            tag: 'lab/124'
+            tagFormat: 'lab/124'
         },
         {
             name: 'master',
