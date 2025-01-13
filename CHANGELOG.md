@@ -1,3 +1,19 @@
+## [1.0.1](https://github.com/ilove52345234/romin-demo/compare/v1.0.0...1.0.1) (2025-01-13)
+
+
+### Bug Fixes
+
+* debug模式 ([48165fa](https://github.com/ilove52345234/romin-demo/commit/48165fa68858d9635d37d1c5f15bf627a3bc8776))
+* debug模式 ([ae60a88](https://github.com/ilove52345234/romin-demo/commit/ae60a888da3682c322c81db85dba8f1815a97d9e))
+* 修正參數 ([26b416b](https://github.com/ilove52345234/romin-demo/commit/26b416b693525bedbea19be3e647d8da0a1d6c45))
+* 增加環境別 ([d7744d8](https://github.com/ilove52345234/romin-demo/commit/d7744d8339b974512d42efca6e4d8d2e1550d601))
+* 增加環境別 ([1ed3b90](https://github.com/ilove52345234/romin-demo/commit/1ed3b90ef06b1493eb1e7ebbe110f448267b9161))
+* 測試 ([439196e](https://github.com/ilove52345234/romin-demo/commit/439196e540ea9010fc17e5a7a5ad060191612a1a))
+* 環境變數 ([8011282](https://github.com/ilove52345234/romin-demo/commit/80112820bffa5bae0d81f92252d97eb2bb4dc0fc))
+* 環境變數 ([be50901](https://github.com/ilove52345234/romin-demo/commit/be509019bba5fcad8f8bc398a30aabee23b710a2))
+* 環境變數 ([d68c246](https://github.com/ilove52345234/romin-demo/commit/d68c2465ac2f7d70eecd0ff6585a7fccfbc8c2a1))
+* 環境變數 ([731db8f](https://github.com/ilove52345234/romin-demo/commit/731db8fdad4628724117fd948459d344228d7f4b))
+
 # 1.0.0 (2025-01-10)
 
 
