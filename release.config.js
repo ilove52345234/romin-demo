@@ -8,7 +8,7 @@ module.exports = {
         {
             name: 'staging',
             channel: 'staging',
-            tagFormat: 'lab/v'
+            tagFormat: 'staging/v${nextRelease.version}v'
         },
         {
             name: 'master',
@@ -18,21 +18,21 @@ module.exports = {
     ],
     plugins: [
         '@semantic-release/commit-analyzer',
-        {
-            // 使用 @semantic-release/exec 插件來執行 shell 指令
-            path: '@semantic-release/exec',
-            exec: {
-                // 使用 shell 指令打印所有環境變數
-                successCmd: 'echo "Current environment variables: $(printenv)"'
-            }
-        },
+        // {
+        //     // 使用 @semantic-release/exec 插件來執行 shell 指令
+        //     path: '@semantic-release/exec',
+        //     exec: {
+        //         // 使用 shell 指令打印所有環境變數
+        //         successCmd: 'echo "Current environment variables: $(printenv)"'
+        //     }
+        // },
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
         '@semantic-release/github',
-        // '@semantic-release/git'
-        {
-            "name": "@semantic-release/git",
-            "tagFormat": "test${nextRelease.version}"
-        }
+        '@semantic-release/git'
+        // {
+        //     "name": "@semantic-release/git",
+        //     "tagFormat": "test${nextRelease.version}"
+        // }
     ]
 };

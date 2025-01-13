@@ -9,6 +9,8 @@ on:
 
 jobs:
   release:
+    name: Release
+    environment: release # 這裡要記得指定套用的環境，才能取得變數
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
