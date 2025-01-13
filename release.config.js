@@ -22,8 +22,8 @@ module.exports = {
             // 使用 @semantic-release/exec 插件來執行 shell 指令
             path: '@semantic-release/exec',
             exec: {
-                // 在 commit-analyzer 執行後，確認並印出環境變數
-                successCmd: 'echo "環境變數 :$ENV_VAR"'
+                // 使用 shell 指令打印所有環境變數
+                successCmd: 'echo "Current environment variables: $(printenv)"'
             }
         },
         '@semantic-release/release-notes-generator',
