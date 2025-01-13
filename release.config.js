@@ -29,10 +29,10 @@ module.exports = {
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
         '@semantic-release/github',
-        '@semantic-release/git'
-        // {
-        //     "name": "@semantic-release/git",
-        //     "tagFormat": "${nextRelease.version}"
-        // }
+        // '@semantic-release/git'
+        {
+            "name": "@semantic-release/git",
+            "tagFormat": "test${nextRelease.version}"
+        }
     ]
 };
