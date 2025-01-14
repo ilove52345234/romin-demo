@@ -38,7 +38,7 @@ module.exports = {
         [
             "@semantic-release/git",
             {
-                tag: '${branch.name}/v${nextRelease.version}'  // 只自定義標籤格式，不提交訊息
+                tagFormat: '${branch.name}/v${nextRelease.version}'  // 只自定義標籤格式，不提交訊息
             }
         ],
         [
