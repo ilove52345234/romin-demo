@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.0...prod/v1.0.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* 合併測試 ([93d8690](https://github.com/ilove52345234/romin-demo/commit/93d8690b185706af16b55e2bdfd53a1fd5e1fce5))
+
 # 1.0.0 (2025-01-14)
 
 
