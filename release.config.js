@@ -4,18 +4,15 @@ module.exports = {
             name: 'lab',
             channel: 'lab',
             prerelease: false
-            // tagFormat: 'lab/v${nextRelease.version}'
         },
         {
             name: 'staging',
             channel: 'staging',
-            prerelease: false
-            // tagFormat: 'staging/v${version}'
+            prerelease: false,
         },
         {
             name: 'master',
             channel: 'prod',
-            // tagFormat: 'prod/v${nextRelease.version}'
         },
     ],
     plugins: [
@@ -32,10 +29,16 @@ module.exports = {
         '@semantic-release/changelog',
         // '@semantic-release/github',
         // '@semantic-release/git',
+        // [
+        //     "@semantic-release/git",
+        //     {
+        //         "message": "chore(release): ${branch.name}/v${nextRelease.version} [skip ci]"
+        //     }
+        // ],
         [
             "@semantic-release/git",
             {
-                "message": "chore(release): ${branch.name}/v${nextRelease.version} [skip ci]"
+                tag: '${branch.name}/v${nextRelease.version}'  // 只自定義標籤格式，不提交訊息
             }
         ],
         [
@@ -43,13 +46,7 @@ module.exports = {
             {
                 "assets": ["dist/**/*.{js,css}", "docs/**/*"]
             }
-        ]
-        // [
-        //     "@semantic-release/git",
-        //     {
-        //         "message": "chore(release): lab/${nextRelease.version} [skip ci]"
-        //     }
-        // ]
+        ],
         // {
         //     "name": "@semantic-release/git",
         //     "tagFormat": "test${nextRelease.version}"
