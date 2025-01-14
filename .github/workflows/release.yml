@@ -3,14 +3,12 @@ name: Release
 on:
   push:
     branches:
-      - main
-      - lab
       - staging
 
 jobs:
   release:
     name: Release
-    environment: release # 這裡要記得指定套用的環境，才能取得變數
+    environment: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,5 +22,4 @@ jobs:
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TEST: ${{ secrets.LAB }}
         run: npx semantic-release
