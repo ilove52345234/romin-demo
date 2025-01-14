@@ -1,14 +1,14 @@
-const { execSync } = require('child_process');
-const { getGitHubApi } = require('@semantic-release/github');
-
 module.exports = async (pluginConfig, context) => {
     const { nextRelease, logger, branch } = context;
+
+    // Use dynamic import to load the GitHub API from @semantic-release/github
+    const { getGitHubApi } = await import('@semantic-release/github');
 
     // Get the list of merged pull requests from GitHub
     const github = getGitHubApi(context);
     const prQuery = `is:pr is:merged base:${branch} sort:merged-desc`;
 
-    // Fetch PRs using GitHub's GraphQL or REST API
+    // Fetch PRs using GitHub's API
     const prs = await github.rest.pulls.list({
         owner: context.owner,
         repo: context.repo,
