@@ -3,11 +3,13 @@ module.exports = {
         {
             name: 'lab',
             channel: 'lab',
+            prerelease: false
             // tagFormat: 'lab/v${nextRelease.version}'
         },
         {
             name: 'staging',
             channel: 'staging',
+            prerelease: false
             // tagFormat: 'staging/v${version}'
         },
         {
@@ -28,14 +30,26 @@ module.exports = {
         // },
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
-        '@semantic-release/github',
+        // '@semantic-release/github',
         // '@semantic-release/git',
         [
             "@semantic-release/git",
             {
-                "message": "chore(release): lab/${nextRelease.version} [skip ci]"
+                "message": "chore(release): ${branchName}/v${nextRelease.version} [skip ci]"
+            }
+        ],
+        [
+            "@semantic-release/github",
+            {
+                "assets": ["dist/**/*.{js,css}", "docs/**/*"]
             }
         ]
+        // [
+        //     "@semantic-release/git",
+        //     {
+        //         "message": "chore(release): lab/${nextRelease.version} [skip ci]"
+        //     }
+        // ]
         // {
         //     "name": "@semantic-release/git",
         //     "tagFormat": "test${nextRelease.version}"
