@@ -1,12 +1,12 @@
 module.exports = {
     branches: [
         {
-            name: 'want',
-            channel: 'want',
+            name: 'main',
+            channel: 'main',
             prerelease: false,
         },
     ],
-    tagFormat: "want/v${version}",
+    tagFormat: "prod/v${version}",
     plugins: [
         '@semantic-release/commit-analyzer',
         '@semantic-release/release-notes-generator',
