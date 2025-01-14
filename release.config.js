@@ -15,7 +15,7 @@ module.exports = {
             channel: 'prod',
         },
     ],
-    tagFormat: "version-v${version}",
+    tagFormat: "${process.env.TEST}/v${version}",
     plugins: [
         '@semantic-release/commit-analyzer',
         // {
