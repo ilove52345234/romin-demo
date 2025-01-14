@@ -2,9 +2,9 @@ module.exports = {
     branches: [
         {
             name: 'lab',
-            channel: 'lab'
+            channel: 'lab',
+            prerelease: false,
         },
-
     ],
     tagFormat: "lab/v${version}",
     plugins: [

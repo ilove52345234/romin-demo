@@ -3,9 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - main
       - lab
-      - staging
 
 jobs:
   release:
