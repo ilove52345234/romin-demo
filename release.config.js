@@ -35,7 +35,7 @@ module.exports = {
         [
             "@semantic-release/git",
             {
-                "message": "chore(release): ${branchName}/v${nextRelease.version} [skip ci]"
+                "message": "chore(release): ${branch.name}/v${nextRelease.version} [skip ci]"
             }
         ],
         [
