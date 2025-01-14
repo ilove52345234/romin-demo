@@ -8,6 +8,7 @@ module.exports = {
         {
             name: 'staging',
             channel: 'staging',
+            tagFormat: '${branch.name}/v${version}',
             prerelease: false,
         },
         {
@@ -27,26 +28,26 @@ module.exports = {
         // },
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
-        // '@semantic-release/github',
-        // '@semantic-release/git',
+        '@semantic-release/github',
+        '@semantic-release/git',
         // [
         //     "@semantic-release/git",
         //     {
         //         "message": "chore(release): ${branch.name}/v${nextRelease.version} [skip ci]"
         //     }
         // ],
-        [
-            "@semantic-release/git",
-            {
-                tagFormat: '${branch.name}/v${nextRelease.version}'  // 只自定義標籤格式，不提交訊息
-            }
-        ],
-        [
-            "@semantic-release/github",
-            {
-                "assets": ["dist/**/*.{js,css}", "docs/**/*"]
-            }
-        ],
+        // [
+        //     "@semantic-release/git",
+        //     {
+        //         tagFormat: '${branch.name}/v${nextRelease.version}'  // 只自定義標籤格式，不提交訊息
+        //     }
+        // ],
+        // [
+        //     "@semantic-release/github",
+        //     {
+        //         "assets": ["dist/**/*.{js,css}", "docs/**/*"]
+        //     }
+        // ],
         // {
         //     "name": "@semantic-release/git",
         //     "tagFormat": "test${nextRelease.version}"
