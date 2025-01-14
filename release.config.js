@@ -8,7 +8,6 @@ module.exports = {
         {
             name: 'staging',
             channel: 'staging',
-            tagFormat: '${branch.name}/v${version}',
             prerelease: false,
         },
         {
@@ -16,6 +15,7 @@ module.exports = {
             channel: 'prod',
         },
     ],
+    tagFormat: "version-v${version}",
     plugins: [
         '@semantic-release/commit-analyzer',
         // {
