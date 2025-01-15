@@ -1,9 +1,14 @@
 name: Release
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - main  # 指定觸發的分支
+    types:
+      - closed  # 只在 PR 被關閉時觸發
+#  push:
+#    branches:
+#      - main
 
 jobs:
   release:
@@ -23,3 +28,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+    if: github.event.pull_request.merged == true
