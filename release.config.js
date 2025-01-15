@@ -40,11 +40,12 @@ module.exports = {
             prerelease: false,
         },
     ],
+    writerOpts: { transform: customTransform },
     tagFormat: "prod/v${version}",
     plugins: [
-        '@semantic-release/commit-analyzer', { preset: 'angular' },
+        '@semantic-release/commit-analyzer',
         '@semantic-release/release-notes-generator',
-        '@semantic-release/changelog', { changelogFile: 'CHANGELOG.md' },
+        '@semantic-release/changelog',
         '@semantic-release/github',
         '@semantic-release/git',
         // {
