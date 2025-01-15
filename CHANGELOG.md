@@ -1,3 +1,33 @@
+## [1.0.1](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.0...prod/v1.0.1) (2025-01-15)
+
+
+### 🐞 Bug Fixes
+
+* 嘗試 ([](https://github.com/ilove52345234/romin-demo/commit/ac2ed089dd86a6a2b733b87ba18072074b72d00c))
+* 更新 ([](https://github.com/ilove52345234/romin-demo/commit/50e7a2e920f111c3f2b51ef1bf18078edcbe481b))
+* 測試版本 ([](https://github.com/ilove52345234/romin-demo/commit/1d4c1fe32971034797ed524ea3b175ec371acf83))
+* 測試用 ([](https://github.com/ilove52345234/romin-demo/commit/e565a353291d0036af2953fd00281497a4f77a2a))
+* 理想 ([](https://github.com/ilove52345234/romin-demo/commit/ccdd47ba094a34134cbbc2f5d48e57f1f2cb4cca))
+
+
+* Merge pull request #18 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/0c64ba291f40e470c7ea435353cd00722938ae5e)), closes [#18](https://github.com/ilove52345234/romin-demo/issues/18)
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/6e01e05e803faec4c3ef7be4298731acd038581f))
+* 修改版本 ([](https://github.com/ilove52345234/romin-demo/commit/b59d31bd4da976ac16ffcf40ab2ccb79e9d4555d))
+* Merge pull request #17 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/215bc30688059d8704a323fdec245b9313f2465c)), closes [#17](https://github.com/ilove52345234/romin-demo/issues/17)
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/8f07641fcc0eb3bf3c68ad2c3e1cbe759084cde2))
+* 更新lock ([](https://github.com/ilove52345234/romin-demo/commit/178463e836c055832f7341c5dc75fbac8de555be))
+* Merge pull request #16 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/de0299a847cd6312993ff511dce4d817d1484591)), closes [#16](https://github.com/ilove52345234/romin-demo/issues/16)
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/46c1fc83faa54fbd43482c1a7211d8047c6aa9f7))
+* 降低版本 ([](https://github.com/ilove52345234/romin-demo/commit/98c600f2625248a14574fd0406a28745541317fd))
+* Merge pull request #15 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/14b1d870e02ad9178bb1156b5f44da78f8769787)), closes [#15](https://github.com/ilove52345234/romin-demo/issues/15)
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/cd91f85c150d34cacbde1a0155102bda382325b4))
+* 修改物件 ([](https://github.com/ilove52345234/romin-demo/commit/3daaffd566dbdf6f16def3fa154008ba825d68e9))
+* Merge pull request #14 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/360878d3f3a4fcf972f1c9b7c3ddd677c27eb48a)), closes [#14](https://github.com/ilove52345234/romin-demo/issues/14)
+* Merge pull request #13 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/1af368120daa37f5488de4f1a062fc41b32bae0b)), closes [#13](https://github.com/ilove52345234/romin-demo/issues/13)
+* fix:嘗試 ([](https://github.com/ilove52345234/romin-demo/commit/e56e6d8e81c476bb4687e5a68a88f7852238f035))
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/3814fb31613ea1e47b586c27a4b271f6246f76e5))
+* 修改樣式 ([](https://github.com/ilove52345234/romin-demo/commit/e0cc1fe920e21753c87387aec6072856831b751e))
+
 # 1.0.0 (2025-01-15)
 
 
