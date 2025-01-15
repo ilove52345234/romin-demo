@@ -21,10 +21,12 @@ module.exports = {
                             return commit;
                         }
 
-                        console.warn(`這是commit: ${commit}`);
+                        console.warn(`這是commit: ${commit.message}`);
 
                         // 提取 PR 編號並生成連結
                         const prMatch = commit.message.match(/Merge pull request #(\d+)/);
+                        console.warn(`這是pr: ${prMatch}`);
+
                         if (prMatch) {
                             const prNumber = prMatch[1];
                             commit.subject = `${commit.subject || 'No subject provided'} ([#${prNumber}](https://github.com/${owner}/${repository}/pull/${prNumber}))`;
