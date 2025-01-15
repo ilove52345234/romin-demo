@@ -1,3 +1,16 @@
+## [1.0.2](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.1...prod/v1.0.2) (2025-01-15)
+
+
+### 🐞 Bug Fixes
+
+* 測試 ([](https://github.com/ilove52345234/romin-demo/commit/2f398c7a88b5073aab63b88e89d4918018bc397a))
+
+
+* Merge pull request #19 from ilove52345234/develop ([](https://github.com/ilove52345234/romin-demo/commit/bbad2a0daba92476c7613005440ba6a5f4b168e6)), closes [#19](https://github.com/ilove52345234/romin-demo/issues/19)
+* Merge remote-tracking branch 'origin/main' ([](https://github.com/ilove52345234/romin-demo/commit/6a1e22bbaac3ba51d46741e6cb415d4c078f20ee))
+* 嘗試處理mg ([](https://github.com/ilove52345234/romin-demo/commit/4c875588177148f53aa5937a8aa09d7b37984e4e))
+* 嘗試處理mg ([](https://github.com/ilove52345234/romin-demo/commit/e5832726867624e10e42d90c17cf185a87efc72e))
+
 ## [1.0.1](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.0...prod/v1.0.1) (2025-01-15)
 
 
