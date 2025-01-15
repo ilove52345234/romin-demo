@@ -25,6 +25,14 @@ jobs:
           node-version: 20.8.1
       - name: Install dependencies
         run: npm ci
+
+      - name: Modify merge commit message with PR title
+        run:
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            COMMIT_MESSAGE="Merge pull request #$PR_NUMBER from $PR_TITLE"
+            git commit --amend --no-edit -m "$COMMIT_MESSAGE"
+            git push --force
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
