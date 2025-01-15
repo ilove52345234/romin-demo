@@ -31,8 +31,6 @@ const customTransform = (commit, context) => {
         transformedCommit.type = '🔧 Build System';
     } else if (transformedCommit.type === 'ci') {
         transformedCommit.type = '🐎 Continuous Integration';
-    }else if(){
-
     }
 
     // 返回修改後的新 commit 物件
