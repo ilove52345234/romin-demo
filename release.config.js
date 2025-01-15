@@ -13,19 +13,45 @@ module.exports = {
         [
             '@semantic-release/release-notes-generator',
             {
-                preset: 'angular', // 提交格式，可根據你的規範調整
+                preset: 'angular', // 使用 Angular 提交格式，根據你的規範調整
                 writerOpts: {
                     transform: (commit, context) => {
-                        // 如果提交是合併 PR，則提取 PR 編號並生成連結
+                        // 檢查提交訊息是否存在
+                        if (!commit.message) {
+                            return commit;
+                        }
+
+                        // 確保日期格式正確
+                        if (commit.committerDate) {
+                            try {
+                                commit.committerDate = new Date(commit.committerDate).toISOString();
+                            } catch (error) {
+                                console.warn(`Invalid committerDate format: ${commit.committerDate}`);
+                            }
+                        }
+                        if (commit.authorDate) {
+                            try {
+                                commit.authorDate = new Date(commit.authorDate).toISOString();
+                            } catch (error) {
+                                console.warn(`Invalid authorDate format: ${commit.authorDate}`);
+                            }
+                        }
+
+                        // 確保 context 的 owner 和 repository 存在
+                        const owner = context.owner || 'unknown-owner';
+                        const repository = context.repository || 'unknown-repo';
+
+                        // 提取 PR 編號並生成連結
                         const prMatch = commit.message.match(/Merge pull request #(\d+)/);
                         if (prMatch) {
                             const prNumber = prMatch[1];
-                            commit.subject = `${commit.subject} ([#${prNumber}](https://github.com/${context.owner}/${context.repository}/pull/${prNumber}))`;
+                            commit.subject = `${commit.subject || 'No subject provided'} ([#${prNumber}](https://github.com/${owner}/${repository}/pull/${prNumber}))`;
                         }
+
                         return commit;
-                    }
-                }
-            }
+                    },
+                },
+            },
         ],
         '@semantic-release/changelog',
         '@semantic-release/github',
