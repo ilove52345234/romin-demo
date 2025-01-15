@@ -1,35 +1,41 @@
 
-customTransform = (commit, context) => {
+const customTransform = (commit, context) => {
+    // 創建一個新的 commit 物件
+    const transformedCommit = { ...commit };
+
     // 檢查提交是否為 `merge` 類型
-    if (commit.type === 'merge') {
+    if (transformedCommit.type === 'merge') {
         // 將合併提交類型標註為 "Merge Commits"
-        commit.type = '🔀 Merge Commits';
+        transformedCommit.type = '🔀 Merge Commits';
     }
 
     // 處理其他提交類型的邏輯
-    if (commit.type === 'feat') {
-        commit.type = '✨ Features';
-    } else if (commit.type === 'fix') {
-        commit.type = '🐞 Bug Fixes';
-    } else if (commit.type === 'perf') {
-        commit.type = '🎈 Performance Improvements';
-    } else if (commit.type === 'revert') {
-        commit.type = 'Reverts';
-    } else if (commit.type === 'docs') {
-        commit.type = '📃 Documentation';
-    } else if (commit.type === 'style') {
-        commit.type = '🌈 Styles';
-    } else if (commit.type === 'refactor') {
-        commit.type = '🦄 Code Refactoring';
-    } else if (commit.type === 'test') {
-        commit.type = '🧪 Tests';
-    } else if (commit.type === 'build') {
-        commit.type = '🔧 Build System';
-    } else if (commit.type === 'ci') {
-        commit.type = '🐎 Continuous Integration';
+    if (transformedCommit.type === 'feat') {
+        transformedCommit.type = '✨ Features';
+    } else if (transformedCommit.type === 'fix') {
+        transformedCommit.type = '🐞 Bug Fixes';
+    } else if (transformedCommit.type === 'perf') {
+        transformedCommit.type = '🎈 Performance Improvements';
+    } else if (transformedCommit.type === 'revert') {
+        transformedCommit.type = 'Reverts';
+    } else if (transformedCommit.type === 'docs') {
+        transformedCommit.type = '📃 Documentation';
+    } else if (transformedCommit.type === 'style') {
+        transformedCommit.type = '🌈 Styles';
+    } else if (transformedCommit.type === 'refactor') {
+        transformedCommit.type = '🦄 Code Refactoring';
+    } else if (transformedCommit.type === 'test') {
+        transformedCommit.type = '🧪 Tests';
+    } else if (transformedCommit.type === 'build') {
+        transformedCommit.type = '🔧 Build System';
+    } else if (transformedCommit.type === 'ci') {
+        transformedCommit.type = '🐎 Continuous Integration';
     }
-    return commit;
+
+    // 返回修改後的新 commit 物件
+    return transformedCommit;
 };
+
 
 
 module.exports = {
