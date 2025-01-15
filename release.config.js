@@ -13,7 +13,7 @@ transform = (commit, context) => {
 
     if (prMatch) {
         const prNumber = prMatch[1];
-        commit.subject = `${commit.subject || 'No subject provided'} ([#${prNumber}](https://github.com/${owner}/${repository}/pull/${prNumber}))`;
+        // commit.subject = `${commit.subject || 'No subject provided'} ([#${prNumber}](https://github.com/${owner}/${repository}/pull/${prNumber}))`;
     }
 
     return commit;
