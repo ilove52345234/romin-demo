@@ -7,6 +7,7 @@ const customTransform = (commit, context) => {
     if (transformedCommit.type === 'merge') {
         // 將合併提交類型標註為 "Merge Commits"
         transformedCommit.type = '🔀 Merge Commits';
+        return transformedCommit;
     }
 
     // 處理其他提交類型的邏輯
@@ -30,6 +31,8 @@ const customTransform = (commit, context) => {
         transformedCommit.type = '🔧 Build System';
     } else if (transformedCommit.type === 'ci') {
         transformedCommit.type = '🐎 Continuous Integration';
+    }else if(){
+
     }
 
     // 返回修改後的新 commit 物件
