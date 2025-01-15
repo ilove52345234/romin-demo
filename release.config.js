@@ -3,11 +3,10 @@ const customTransform = (commit, context) => {
     // 創建一個新的 commit 物件
     const transformedCommit = { ...commit };
 
-    // 檢查提交是否為 `merge` 類型
-    if (transformedCommit.type === 'merge') {
-        // 將合併提交類型標註為 "Merge Commits"
-        transformedCommit.type = '🔀 Merge Commits';
-        return transformedCommit;
+    // 檢查提交訊息是否包含 'Merge'
+    if (commit.message && commit.message.includes('Merge')) {
+        commit.type = '🔀 Merge Commits';  // 設置為合併提交
+        return commit;
     }
 
     // 處理其他提交類型的邏輯
