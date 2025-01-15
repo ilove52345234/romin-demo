@@ -1,14 +1,9 @@
 name: Release
 
 on:
-  pull_request:
+  push:
     branches:
-      - main  # 指定觸發的分支
-    types:
-      - closed  # 只在 PR 被關閉時觸發
-#  push:
-#    branches:
-#      - main
+      - main
 
 jobs:
   release:
