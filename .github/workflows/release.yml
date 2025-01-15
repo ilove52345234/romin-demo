@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - main  # 指定觸發的分支
+    types:
+      - closed  # 只在 PR 被關閉時觸發
+#  push:
+#    branches:
+#      - main
+
+jobs:
+  release:
+    if: ${{ github.event.pull_request.merged }}
+    name: Release
+    environment: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.8.1
+      - name: Install dependencies
+        run: npm ci
+      - name: Set Git user
+        run: |
+            git config --global user.name "GitHub Actions"
+            git config --global user.email "actions@github.com"
+      - name: Modify merge commit message with PR title
+        run: |
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+            COMMIT_MESSAGE="Merge pull request #$PR_NUMBER from $PR_TITLE"
+            git commit --amend --no-edit -m "$COMMIT_MESSAGE"
+            git push --force
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

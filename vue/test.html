@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate SQL from Account JSON</title>
+</head>
+<body>
+<h1>帳號盤點小工具</h1>
+<div id="info">
+</div>
+
+<div id="message" class="message"></div>
+<br><br>
+<div>
+    <input type="file" id="upload"/>
+</div>
+
+
+<input type="file" id="fileInput" accept=".txt" />
+<br><br>
+<button id="readFileBtn">讀取文件</button>
+
+<!-- 顯示文件內容的區域 -->
+<pre id="fileContent"></pre>
+
+<br><br>
+<input type="file" id="aes" multiple/>
+<button data-for="aes" disabled>TEST</button>
+<br><br>
+
+
+<input type="file" id="devMasterApi" multiple/>
+<button data-for="devMasterApi" disabled>DevMaster-API</button>
+<span id="devMasterApiCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterDb" multiple/>
+<button data-for="devMasterDb" disabled>DevMaster-DB</button>
+<span id="devMasterDbCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="devMasterFileAccess" multiple/>
+<button data-for="devMasterFileAccess" disabled>DevMaster-File-Access</button>
+<span id="devMasterFileAccessCount">SQL筆數: 0</span>
+<br><br>
+
+<input type="file" id="AWS" multiple/>
+<button data-for="AWS" disabled>AWS</button>
+<br><br>
+
+<div id="permissions-table">
+
+</div>
+<style>
+    #info {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    #info ul {
+        list-style-type: disc;
+        padding-left: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+
+    .employee-row td {
+        border-top: 2px solid #000;
+        font-weight: bold;
+    }
+
+    .employee-row {
+        background-color: #f9f9f9;
+    }
+
+    .sub-row {
+        border-top: none;
+    }
+
+    .checkbox {
+        margin-right: 5px;
+    }
+
+    .copy-text {
+        display: inline-block;
+        padding: 4px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .copy-text:hover {
+        background-color: #f0f0f0;
+    }
+
+    .tooltip {
+        position: absolute;
+        display: none;
+        padding: 5px;
+        margin-top: 5px;
+        border-radius: 4px;
+        background-color: #333;
+        color: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+</style>
+<script>
+    let filesData = [];
+    const fileProcessors = {};
+    init();
+    // 當用戶選擇文件時，將文件存入變量
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        selectedFile = event.target.files[0];  // 儲存選中的文件
+    });
+    document.getElementById('readFileBtn').addEventListener('click', function() {
+        if (selectedFile) {
+            readTextFile(selectedFile, function(content) {
+                // 使用正則表達式提取 message_id
+                const messageIds = Array.from(content.matchAll(/where message_id = '(.+?)'/g)).map(match => match[1]);
+
+                console.log(messageIds.length)
+// 拼接成 IN 條件
+                const inClause = messageIds.map(id => `'${id}'`).join(', ');
+
+// 生成批量更新語句
+                const batchUpdateSql = `
+  UPDATE ws_sms.sms2_information
+  SET point = 1, status = 3
+  WHERE message_id IN (${inClause});
+`;
+                console.log(batchUpdateSql)
+            });
+        } else {
+            alert("請先選擇一個文件");
+        } });
+    // 讀取文本文件的函式
+    function readTextFile(file, callback) {
+        const reader = new FileReader();  // 創建 FileReader 來讀取文件
+
+        reader.onload = function(e) {
+            const content = e.target.result;  // 獲取文件內容
+            callback(content);  // 將文件內容傳遞給回調函式
+        };
+
+        reader.onerror = function() {
+            console.error("文件讀取失敗");
+        };
+
+        reader.readAsText(file);  // 讀取文件為純文本
+    }
+
+
+    // document.getElementById('upload').addEventListener('change', handleFile, false);
+
+
+    function generateAesDeleteSQL(empIdList) {
+        return `
+            DELETE
+            FROM m058001.crypt_query_auth
+            WHERE account_num IN (SELECT mem_num
+                                  FROM m058001.adm_account
+                                  WHERE employee_id IN (${empIdList}));`.trim();
+    }
+
+    function updateInformationSQL(point,  messageId) {
+        return `UPDATE sms2_information
+                SET point  = ${point},
+                    status = 3
+                where message_id = '${messageId}';`.trim();
+    }
+
+    function generateDevMasterDbDeleteSQL(empName, dbName, serverName) {
+        return ` DELETE
+                            FROM m058001.db_auth
+                            WHERE auth_id = (SELECT auth_id
+                                             FROM m058001.db_auth
+                                                      JOIN m058001.adm_account
+                                                           ON m058001.db_auth.account_num = m058001.adm_account.mem_num
+                                                      JOIN m058001.db_list
+                                                           ON m058001.db_auth.server_id = m058001.db_list.db_server_id
+                                                      JOIN m058001.db_schema_mysql
+                                                           ON m058001.db_auth.schema_id = m058001.db_schema_mysql.schema_id
+                                             WHERE mem_ad = '${empName}'
+                                               AND database_name = '${dbName}'
+                                               AND server_name = '${serverName}');
+                        `.trim();
+    }
+
+    function generateXevMasterFileAccessDeleteSQL(empName, serverName, displayName) {
+        return `
+                            DELETE
+                            FROM m058001.upload_server_auth
+                            WHERE auth_id = (SELECT auth_id
+                                             FROM m058001.upload_server_auth
+                                                      JOIN m058001.adm_account
+                                                           ON m058001.upload_server_auth.account_num = m058001.adm_account.mem_num
+                                                      JOIN m058001.upload_server
+                                                           ON m058001.upload_server_auth.upload_server_id =
+                                                              m058001.upload_server.upload_server_id
+                                             WHERE mem_ad = '${empName}'
+                                               AND server_name = '${serverName}'
+                                               AND display_name = '${displayName}');
+                        `.trim();
+    }
+
+    // 設置處理邏輯與事件觸發
+    function init() {
+        setupEventListeners();
+
+        setFileProcessor('aes', function (data) {
+            let queryResultDto = data.queryResultDto;
+
+            const fileInput = document.getElementById('upload');
+            const file = fileInput.files[0];
+            let filename = '';
+            let output = '';
+
+            if (!file) {
+                console.log('No file selected. Please choose an Excel file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0]; // 讀取第一個工作表
+                const worksheet = workbook.Sheets[sheetName];
+                const excelData = XLSX.utils.sheet_to_json(worksheet); // 轉換為JSON數據
+                let sqlQueries = [];
+                let count = 0;
+
+
+                // const idsInArray1 = new Set(excelData.map(item => item.msid));
+                // const result = queryResultDto.filter(item => idsInArray1.has(item.messageId));
+                // const groupedResult = result.reduce((acc, item) => {
+                //     // 檢查分組鍵是否已經存在
+                //     if (!acc[item.providerStatusMessage]) {
+                //         // 如果不存在，則創建一個新的數組
+                //         acc[item.providerStatusMessage] = [];
+                //     }
+                //     // 將當前項目添加到相應的分組中
+                //     acc[item.providerStatusMessage].push(item);
+                //     return acc;
+                // }, {});
+                // const groupKeys = Object.keys(groupedResult);
+                // const index = 1;
+                // const selectedGroupName = groupKeys[index];
+                // const selectedGroup = groupedResult[selectedGroupName];
+                // const csv = convertToCSV(selectedGroup);
+                // downloadCSV(csv);
+                // console.log(groupedResult);
+                const excelDataMap = new Map(excelData.map(item => [item.msid, item]));
+
+                queryResultDto
+                    .filter(item => excelDataMap.has(item.messageId))
+                    .map(item => excelDataMap.get(item.messageId)).forEach(obj => {
+                        const sql = updateInformationSQL(obj.point, obj.msid);
+                        sqlQueries.push(sql.trim());
+                    count++;
+
+                });
+
+                console.log(count);
+                 filename = 'update_sms2_information.sql';
+                 output = sqlQueries.join('\n\n');
+
+                const blob = new Blob([output], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'update_sms2_information.sql';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        setFileProcessor('devMasterApi', function (data) {
+            const empIds = new Set();
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "emp_id") {
+                        const empId = obj.orig_perm.owner_id.content;
+                        if (empId) {
+                            empIds.add(empId);
+                        }
+                    }
+                });
+
+            let sql = '';
+            if (empIds.size > 0) {
+                const empIdList = [...empIds].map(id => `'${id}'`).join(', ');
+                sql = generateAesDeleteSQL(empIdList);
+            } else {
+                console.log("沒有需要刪除的員工ID.");
+            }
+            const output = sql;
+            const filename = 'aes_delete.sql';
+            document.getElementById('aesCount').textContent = `處理的員工ID筆數: ${empIds.size}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterDb', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const dbName = obj.orig_perm.extra["Database Name"];
+                        const serverName = obj.orig_perm.extra["Server Name"];
+                        const sql = generateDevMasterDbDeleteSQL(empName, dbName, serverName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'onlineDb_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterDbCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('devMasterFileAccess', function (data) {
+            let sqlQueries = [];
+            let count = 0;
+
+            data.filter(obj => obj.suggestion.kind === "delete")
+                .forEach(obj => {
+                    if (obj.orig_perm?.owner_id?.type === "ad_id") {
+                        const empName = obj.orig_perm.owner_id.content;
+                        const serverName = obj.orig_perm.extra["主機名稱"];
+                        const displayName = obj.orig_perm.extra["顯示名稱"];
+                        const sql = generateXevMasterFileAccessDeleteSQL(empName, serverName, displayName);
+                        sqlQueries.push(sql.trim());
+                        count++;
+                    }
+                });
+
+            const filename = 'file_access_delete.sql';
+            let output = sqlQueries.join('\n\n');
+            document.getElementById('devMasterFileAccessCount').textContent = `SQL筆數: ${count}`;
+
+            return {output, filename};
+        });
+
+        setFileProcessor('AWS', function (data) {
+            const array = ["ReadOnly", "DevOps", "Collaborator", "SE", "DBA", "Net", "Infosec", "ECROperator"];
+            let result = [];
+
+            const groupedByContent = data.filter(obj => obj.suggestion.kind === "delete")
+                .reduce((acc, item) => {
+                    const content = item.orig_perm.owner_id.content;
+                    const awsAccount = item.orig_perm.extra["AWS帳號"];
+                    const parts = awsAccount.split('-');
+                    let purview = parts ? parts[parts.length - 1] : null;
+                    const reason = `[${purview}] ${item.suggestion.reason}`;
+                    const formattedAwsAccount = parts ? `104aws${parts[1]}` : null;
+                    const notContains = !array.some(substring => purview.includes(substring));
+
+                    if (purview != null && notContains) {
+                        result.push(`${content.padEnd(15, ' ')}     |    ${formattedAwsAccount.padEnd(15, ' ')}    | ${reason} `);
+                        return acc;
+                    }
+
+                    if (!formattedAwsAccount) return acc;
+                    if (!acc[content]) {
+                        acc[content] = [];
+                    }
+                    acc[content].push({[formattedAwsAccount]: reason});
+                    return acc;
+                }, {});
+
+            const sortedGroupedByContent = Object.keys(groupedByContent).reduce((acc, content) => {
+                acc[content] = groupedByContent[content].sort((a, b) => {
+                    const aKey = Object.keys(a)[0];
+                    const bKey = Object.keys(b)[0];
+                    return aKey.localeCompare(bKey);
+                });
+                return acc;
+            }, {});
+
+            let html = `<table>
+                <tbody>`;
+
+            for (const [employee, permissions] of Object.entries(sortedGroupedByContent)) {
+                html += `
+        <tr class="employee-row">
+            <td>
+                <input type="checkbox" class="employee-checkbox" data-employee="${employee}">
+            </td>
+            <td colspan="2">
+               <span class="copy-text" onclick="copyText('${employee}' ,this)">${employee}</span>
+               <div class="tooltip">已複製</div>
+            </td>
+        </tr>`;
+
+                permissions.forEach(permission => {
+                    const awsAccount = Object.keys(permission)[0];
+                    const reason = permission[awsAccount];
+                    html += `
+        <tr class="permission-row" data-employee="${employee}">
+            <td>
+                <input type="checkbox" class="permission-checkbox">
+            </td>
+            <td>
+                    <span class="copy-text" onclick="copyText('${awsAccount}' , this)">${awsAccount}</span>
+                                <div class="tooltip">已複製</div>
+
+            </td>
+            <td>${reason}</td>
+        </tr>`;
+                });
+            }
+
+            html += `
+        </tbody>
+    </table>`;
+
+            document.getElementById('permissions-table').innerHTML = html;
+
+            document.querySelectorAll('.employee-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const employee = this.dataset.employee;
+                    document.querySelectorAll(`.permission-row[data-employee="${employee}"] .permission-checkbox`).forEach(cb => {
+                        cb.checked = this.checked;
+                    });
+                });
+            });
+
+            let output = null;
+            let filename = null;
+            if (result.length !== 0) {
+                output = result.join('\n\n');
+                filename = 'aws_delete.txt';
+            }
+            return {output, filename};
+        });
+    }
+
+    // 處理文件上傳
+    function handleFileInput(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    const id = fileInput.id; // 根據標籤 ID 獲取對應的處理邏輯
+                    filesData.push({file, data: jsonData, id});
+                    checkFilesReady();
+                } catch (error) {
+                    alert(`錯誤的 JSON file: ${file.name}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // 檢查文件並根據情況更新按鈕狀態
+    function checkFilesReady() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            const button = document.querySelector(`button[data-for="${input.id}"]`);
+            const filesForInput = filesData.filter(fileData => fileData.id === input.id);
+            if (button) {
+                button.disabled = filesForInput.length === 0;
+            }
+        });
+    }
+
+    // 下載方法
+    function downloadFile(filename, content) {
+        const blob = new Blob([content], {type: 'text/plain'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+
+    // 根據ID處理並下載
+    function convertAndDownload(event) {
+        const button = event.target;
+        const fileId = button.getAttribute('data-for');
+        const filesForId = filesData.filter(fileData => fileData.id === fileId);
+
+        filesForId.forEach(fileData => {
+            const {file, data} = fileData;
+            const processor = fileProcessors[fileId];
+            if (processor) {
+                const {output, filename} = processor(data);
+                if (output && filename) {
+                    downloadFile(filename, output);
+                } else {
+                    alert(`檔案處理失敗: ${file.name}`);
+                }
+            } else {
+                alert(`沒有設置處理邏輯: ${fileId}`);
+            }
+        });
+    }
+
+    // 設置文件處理邏輯
+    function setFileProcessor(id, processor) {
+        fileProcessors[id] = processor;
+    }
+
+    // 設置事件處理
+    function setupEventListeners() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', handleFileInput);
+        });
+
+        const buttons = document.querySelectorAll('button[data-for]');
+        buttons.forEach(button => {
+            button.addEventListener('click', convertAndDownload);
+        });
+    }
+
+    function copyText(text, element) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                const tooltip = element.nextElementSibling;
+                tooltip.style.display = 'block';
+                setTimeout(() => {
+                    tooltip.style.display = 'none';
+                }, 2000);
+            })
+            .catch(err => {
+                alert('複製失敗');
+            });
+    }
+
+
+    function convertToCSV(data) {
+        // const headers = [
+        //     "batchId",
+        //     "messageId",
+        //     "createTime",
+        //     "providerStatusMessage",
+        //     "receivedFromProviderTime",
+        //     "sentToProviderTime",
+        //     "smsConsumerId",
+        //     "phoneNumber",
+        //     "point",
+        //     "priority",
+        //     "projectCode",
+        //     "providerId",
+        //     "providerSmsId",
+        //     "status",
+        //     "id"];
+
+        const headers = [
+            "batchId",
+            "messageId",
+            "建立時間",
+            "送出至簡訊廠商時間",
+            "廠商回應簡訊發送狀態時間",
+            "廠商回覆訊息",
+            "點數",
+            "手機",
+            "內容",
+        ];
+
+
+        const csvRows = [headers.join(",")];
+
+        data.forEach(item => {
+            const row = [item.batchId,
+                item.messageId,
+                item.createTime,
+                item.sentToProviderTime,
+                item.receivedFromProviderTime,
+                item.providerStatusMessage,
+                item.point,
+                item.phoneNumber,
+                item.messageContent,].join(",");
+            csvRows.push(row);
+        });
+
+        return "\ufeff" + csvRows.join("\n");
+    }
+
+    // 創建並下載 CSV 文件
+    function downloadCSV(csv) {
+        const csvFile = new Blob([csv], {type: 'text/csv'});
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'data.csv';
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    function handleFile(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheetName = workbook.SheetNames[0]; // 讀取第一個工作表
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            console.log(jsonData); // 將表格數據轉換為 JSON 格式並打印出來
+        };
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+</body>
+</html>
