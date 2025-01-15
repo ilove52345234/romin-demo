@@ -21,25 +21,7 @@ module.exports = {
                             return commit;
                         }
 
-                        // 確保日期格式正確
-                        if (commit.committerDate) {
-                            try {
-                                commit.committerDate = new Date(commit.committerDate).toISOString();
-                            } catch (error) {
-                                console.warn(`Invalid committerDate format: ${commit.committerDate}`);
-                            }
-                        }
-                        if (commit.authorDate) {
-                            try {
-                                commit.authorDate = new Date(commit.authorDate).toISOString();
-                            } catch (error) {
-                                console.warn(`Invalid authorDate format: ${commit.authorDate}`);
-                            }
-                        }
-
-                        // 確保 context 的 owner 和 repository 存在
-                        const owner = context.owner || 'unknown-owner';
-                        const repository = context.repository || 'unknown-repo';
+                        console.warn(`這是commit: ${commit}`);
 
                         // 提取 PR 編號並生成連結
                         const prMatch = commit.message.match(/Merge pull request #(\d+)/);
