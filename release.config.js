@@ -37,21 +37,25 @@ const customTransform = (commit, context) => {
     }
 
     if (typeof commit.subject === `string`) {
-        commit.subject = commit.subject.substring(2)
+        // 去掉類型部分（fix:、feat: 等）
+        commit.subject = commit.subject.replace(/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert):\s?/, '');
+
         if (context.host) {
-            // User URLs.
+            // 處理 @username，將其轉換為連結
             commit.subject = commit.subject.replace(
                 /\B@([a-z0-9](?:-?[a-z0-9/]){0,38})/g,
                 (_, username) => {
                     if (username.includes("/")) {
-                        return `@${username}`
+                        return `@${username}`;
                     }
-                    return `[@${username}](${context.host}/${username})`
+                    return `[@${username}](${context.host}/${username})`;
                 }
-            )
+            );
         }
-        commit.subject = `${commit.subject} (by @${commit.committer.name})`
+        // 最後加上 committer 的信息
+        commit.subject = `${commit.subject} (by @${commit.committer.name})`;
     }
+
 
     return commit
 
