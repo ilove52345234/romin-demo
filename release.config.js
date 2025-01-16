@@ -7,7 +7,10 @@ const customTransform = (commit, context) => {
     }
     return commit;
 };
-
+parserOpts = {
+    mergePattern: /^Merge pull request #(\d+) from (.*)$/,
+    mergeCorrespondence: ["id", "source"]
+}
 
 
 module.exports = {
@@ -22,28 +25,21 @@ module.exports = {
     releaseRules: [{ "type": "chore", "release": "patch" }],
 
     plugins: [
-        "@semantic-release/commit-analyzer",
+        // "@semantic-release/commit-analyzer",
+        [
+            "@semantic-release/commit-analyzer",
+            {
+                "preset": "conventionalCommits"
+            }
+        ],
         [
             "@semantic-release/release-notes-generator",
             {
                 "preset": "conventionalCommits",
                 "writerOpts": {
-                    "transform": (commit, context) => {
-                        if (commit.subject && commit.subject.includes("Merge pull request")) {
-                            commit.type = "Merged Pull Requests";
-                        }
-                        return commit;
-                    },
                     "groupBy": "type",
                     "commitGroupsSort": "title",
-                    "noteGroupsSort": "title",
-                    "commitsSort": ["scope", "subject"],
-                    "groupTitleMap": {
-                        "feat": "✨ New Features",
-                        "fix": "🐛 Bug Fixes",
-                        "docs": "📝 Documentation Updates",
-                        "merge": "🔀 Merged Pull Requests"
-                    }
+                    "commitsSort": ["subject", "scope"]
                 }
             }
         ],
