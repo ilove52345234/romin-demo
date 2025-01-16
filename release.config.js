@@ -1,14 +1,13 @@
 const customTransform = (commit, context) => {
 
 
-    if (commit.message && commit.message.includes('pull request')) {
-        if (commit.message && commit.message.includes('release/')) {
-            commit.type = 'JIRA';  // 設置為 JIRA 類型
-            const releasePart = commit.message.split('release/')[1];  // 取得 "release/" 後的字串
-            commit.subject = `https://${releasePart}`;  // 格式化提交內容為對應的 URL
-            commit.subject = `[${releasePart}](https://${releasePart})`;  // 顯示為可點擊的超連結
-            return commit;
-        }
+    if (commit.message && commit.message.includes('release/')) {
+        commit.type = 'JIRA';  // 設置為 JIRA 類型
+        const releasePart = commit.message.split('release/')[1];  // 取得 "release/" 後的字串
+        commit.subject = `https://${releasePart}`;  // 格式化提交內容為對應的 URL
+        commit.subject = `[${releasePart}](https://${releasePart})`;  // 顯示為可點擊的超連結
+        return commit;
+    } else if (commit.message && commit.message.includes('pull request')) {
         commit.type = '🔀 Pull request';  // 設置為合併提交
     } else if (commit.type === `feat`) {
         commit.type = `✨ Features`
