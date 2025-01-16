@@ -7,7 +7,7 @@ const customTransform = (commit, context) => {
         // 提取 "release/" 後的字串
         const releasePart = commit.message.split('release/')[1].split(' ')[0];  // 取得 "release/" 後的字串，並去除空格等多餘部分
         // 格式化提交內容為可點擊的連結
-        commit.subject = `[${releasePart}](https://${releasePart}) ${commit.subject.replace(releasePart, '')}`;  // 顯示為可點擊的超連結
+        commit.subject = `[${releasePart}](https://${releasePart})`;  // 顯示為可點擊的超連結
     } else if (commit.message && commit.message.includes('pull request')) {
         commit.type = '🔀 Pull request';  // 設置為合併提交
     } else if (commit.type === `feat`) {
