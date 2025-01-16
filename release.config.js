@@ -36,7 +36,14 @@ module.exports = {
                     },
                     "groupBy": "type",
                     "commitGroupsSort": "title",
-                    "commitsSort": ["scope", "subject"]
+                    "noteGroupsSort": "title",
+                    "commitsSort": ["scope", "subject"],
+                    "groupTitleMap": {
+                        "feat": "✨ New Features",
+                        "fix": "🐛 Bug Fixes",
+                        "docs": "📝 Documentation Updates",
+                        "merge": "🔀 Merged Pull Requests"
+                    }
                 }
             }
         ],
