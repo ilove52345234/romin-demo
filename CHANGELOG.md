@@ -1,3 +1,16 @@
+## <small>1.0.6 (2025-01-16)</small>
+
+* Merge pull request #25 from ilove52345234/develop ([82496a1b7781a3ff4d3698edc524633231e77e33](https://github.com/ilove52345234/romin-demo/commit/82496a1b7781a3ff4d3698edc524633231e77e33)), closes [#25](https://github.com/ilove52345234/romin-demo/issues/25)
+* main修改使用conventionalCommits ([c470a16482a761243d313b0434588440f04c4a8e](https://github.com/ilove52345234/romin-demo/commit/c470a16482a761243d313b0434588440f04c4a8e))
+* Merge pull request #24 from ilove52345234/develop ([625692bb2f05a7a856408ca4ebc8e80587f76796](https://github.com/ilove52345234/romin-demo/commit/625692bb2f05a7a856408ca4ebc8e80587f76796)), closes [#24](https://github.com/ilove52345234/romin-demo/issues/24)
+* Merge remote-tracking branch 'origin/main' ([7c33b3ea068d089ca6a25a2709d36359c2ee3781](https://github.com/ilove52345234/romin-demo/commit/7c33b3ea068d089ca6a25a2709d36359c2ee3781))
+* main修改 ([fdd4b28d4c6fcb894daa330db83c258d0d3c98b8](https://github.com/ilove52345234/romin-demo/commit/fdd4b28d4c6fcb894daa330db83c258d0d3c98b8))
+* Merge pull request #23 from ilove52345234/develop ([059cbea4658e8674351786812dfeff72fdec89e5](https://github.com/ilove52345234/romin-demo/commit/059cbea4658e8674351786812dfeff72fdec89e5)), closes [#23](https://github.com/ilove52345234/romin-demo/issues/23)
+* 修改提交 ([2e1b0c0a4a211d223ccdfc3882bbb26d49976ba9](https://github.com/ilove52345234/romin-demo/commit/2e1b0c0a4a211d223ccdfc3882bbb26d49976ba9))
+* fix: 測試 ([b4d2cdf85658b971ce89380ae4e9aa8b06adb029](https://github.com/ilove52345234/romin-demo/commit/b4d2cdf85658b971ce89380ae4e9aa8b06adb029))
+* fix: 測試 ([6ee17969b487e46e8b0c571f1d14b8ea267851f7](https://github.com/ilove52345234/romin-demo/commit/6ee17969b487e46e8b0c571f1d14b8ea267851f7))
+* fix: 測試ˇ ([1ea0f85d5824a4ad7d4aa4d6fd11c47223f372f5](https://github.com/ilove52345234/romin-demo/commit/1ea0f85d5824a4ad7d4aa4d6fd11c47223f372f5))
+
 ## [1.0.5](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.4...prod/v1.0.5) (2025-01-15)
 
 
