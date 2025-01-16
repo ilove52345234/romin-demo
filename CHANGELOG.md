@@ -1,3 +1,25 @@
+## [1.1.1](https://github.com/ilove52345234/romin-demo/compare/prod/v1.1.0...prod/v1.1.1) (2025-01-16)
+
+
+### 🐞 Bug Fixes
+
+* 測試 (by @romin.zhang) ([edcd0f3](https://github.com/ilove52345234/romin-demo/commit/edcd0f31519f3775204bcae93be0d64041801ff8))
+* 測試 (by @romin.zhang) ([1d2bbd8](https://github.com/ilove52345234/romin-demo/commit/1d2bbd858f37ab1715eef0e6005810586cd1c8a9))
+
+
+### JIRA
+
+* [te122
+
+fix:](https://te122
+
+fix:) (by @GitHub) ([e49cb60](https://github.com/ilove52345234/romin-demo/commit/e49cb601ed099e7fd9a3698df5c08c6480945401)), closes [#35](https://github.com/ilove52345234/romin-demo/issues/35)
+* [tt1t2
+
+fix:](https://tt1t2
+
+fix:) (by @GitHub) ([ba4d6dc](https://github.com/ilove52345234/romin-demo/commit/ba4d6dc3c2ba34385882dcdd091075949c19dcc5)), closes [#34](https://github.com/ilove52345234/romin-demo/issues/34)
+
 ## [1.1.0](https://github.com/ilove52345234/romin-demo/compare/prod/v1.0.11...prod/v1.1.0) (2025-01-16)
 
 
