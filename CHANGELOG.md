@@ -1,3 +1,15 @@
+## [1.1.2](https://github.com/ilove52345234/romin-demo/compare/prod/v1.1.1...prod/v1.1.2) (2025-01-16)
+
+
+### 🐞 Bug Fixes
+
+* last (by @romin.zhang) ([f3df2a5](https://github.com/ilove52345234/romin-demo/commit/f3df2a54aea56799e647e05072dab3e2ec21704e))
+
+
+### JIRA
+
+* [](https://) (by @GitHub) ([45de55d](https://github.com/ilove52345234/romin-demo/commit/45de55df281e760db2a4b98e7ea0f1662a217de9)), closes [#36](https://github.com/ilove52345234/romin-demo/issues/36)
+
 ## [1.1.1](https://github.com/ilove52345234/romin-demo/compare/prod/v1.1.0...prod/v1.1.1) (2025-01-16)
 
 
