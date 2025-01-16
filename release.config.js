@@ -22,7 +22,7 @@ module.exports = {
         },
     ],
     tagFormat: "prod/v${version}",
-    releaseRules: [{ "type": "chore", "release": "patch" }],
+    // releaseRules: [{ "type": "chore", "release": "patch" }],
 
     plugins: [
         // "@semantic-release/commit-analyzer",
@@ -39,7 +39,8 @@ module.exports = {
                 "writerOpts": {
                     "groupBy": "type",
                     "commitGroupsSort": "title",
-                    "commitsSort": ["subject", "scope"]
+                    "commitsSort": ["subject", "scope"],
+                    "transform": customTransform,
                 }
             }
         ],
