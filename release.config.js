@@ -9,12 +9,17 @@ const customTransform = (commit, context) => {
     // } else
 
     if (commit.message && commit.message.includes('pull request')) {
-        const releasePart = (commit.message.split('\n')[2] || '').match(/release\/(\S+)/);
+
+        let  description = commit.message.split('\n')[2] || '';
+        const releasePart = description.match(/release\/(\S+)/) ;
         if (releasePart) {
             commit.type = '🚀 JIRA';
             commit.subject = `[${releasePart[1]}](https://104corp.atlassian.net/browse/${releasePart[1]})`;
         } else {
             commit.type = '🔀 Pull request';
+            if (description && description !== '') {
+                commit.subject = description
+            }
         }
     } else if (commit.type === `feat`) {
         commit.type = `✨ Features`
