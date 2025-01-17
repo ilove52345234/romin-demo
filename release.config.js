@@ -1,4 +1,6 @@
-const customTransform = (commit, context) => {
+const {Octokit} = require("@octokit/rest");
+const octokit = new Octokit({auth: process.env.GITHUB_TOKEN});
+const customTransform = async (commit, context) => {
     // if (commit.message && commit.message.includes('release/')) {
     //     commit.type = '🚀 JIRA';
     //     const releasePart = commit.message
@@ -8,13 +10,37 @@ const customTransform = (commit, context) => {
     //     commit.subject = `[${releasePart}](https://104corp.atlassian.net/browse/${releasePart})`;
     // } else
 
+    // GitHub 相關環境變數
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+
+
     if (commit.message && commit.message.includes('pull request')) {
-        const releasePart = (commit.message.split('\n')[1] || '').match(/release\/(\S+)/);
+        let description = null;
+        let releasePart = null;
+        try {
+            const {data} = await octokit.repos.getCommit({
+                owner,
+                repo,
+                commit_sha: commit.hash
+            });
+            description = data.commit.message;
+        } catch (e) {
+            console.error(e);
+        }
+
+        if (description) {
+            releasePart = description.match(/release\/(\S+)/);
+        }
+
+
         if (releasePart) {
             commit.type = '🚀 JIRA';
             commit.subject = `[${releasePart[1]}](https://104corp.atlassian.net/browse/${releasePart[1]})`;
         } else {
             commit.type = '🔀 Pull request';
+            if (description) {
+                commit.subject = commit.subject.replace(/Merge pull request/, description);
+            }
         }
     } else if (commit.type === `feat`) {
         commit.type = `✨ Features`

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@octokit/rest": "^21.1.0",
     "semantic-release": "^23.0.0"
   },
   "devDependencies": {
