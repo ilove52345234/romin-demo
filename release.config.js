@@ -15,7 +15,8 @@ const customTransform = async (commit, context) => {
     // GitHub 相關環境變數
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 
-
+    console.log('這是commit~~~~~~~~~~~~~')
+    console.log(commit);
     if (commit.message && commit.message.includes('pull request')) {
         let description = null;
         let releasePart = null;
