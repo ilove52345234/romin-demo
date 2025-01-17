@@ -65,6 +65,9 @@ const customTransform = (commit, context) => {
         commit.subject = `${commit.subject} (by @${commit.committer.name})`;
     }
 
+    if (!commit.type) commit.type = '';
+    if (!commit.scope) commit.scope = '';
+    if (!commit.subject) commit.subject = '';
     return commit
 };
 parserOpts = {
