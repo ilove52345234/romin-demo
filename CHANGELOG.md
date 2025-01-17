@@ -1,3 +1,15 @@
+## [1.2.5](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.4...prod/v1.2.5) (2025-01-17)
+
+
+### 🔀 Pull request
+
+* Merge pull request #50 from ilove52345234/develop ([d9d1ce3](https://github.com/ilove52345234/romin-demo/commit/d9d1ce399507cb3f4e04f5d27ea8ce3ae5ad229d)), closes [#50](https://github.com/ilove52345234/romin-demo/issues/50)
+
+
+### 🐞 Bug Fixes
+
+* 改動 (by @romin.zhang) ([2b05ea8](https://github.com/ilove52345234/romin-demo/commit/2b05ea8658832b0a0dac3e11133d67b3faff5876))
+
 ## [1.2.4](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.3...prod/v1.2.4) (2025-01-17)
 
 
