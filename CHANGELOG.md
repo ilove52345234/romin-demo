@@ -1,3 +1,15 @@
+## [1.2.6](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.5...prod/v1.2.6) (2025-01-17)
+
+
+### 🚀 JIRA
+
+* [ITPMSYSREQ-7122](https://104corp.atlassian.net/browse/ITPMSYSREQ-7122) (by @GitHub) ([45a94fc](https://github.com/ilove52345234/romin-demo/commit/45a94fc101587fb0beffecf5f3da03f2727f8dc0)), closes [#51](https://github.com/ilove52345234/romin-demo/issues/51)
+
+
+### 🐞 Bug Fixes
+
+* 測試N (by @romin.zhang) ([ab166f8](https://github.com/ilove52345234/romin-demo/commit/ab166f84eecdbef94f18fc2c0c649bb06da88647))
+
 ## [1.2.5](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.4...prod/v1.2.5) (2025-01-17)
 
 
