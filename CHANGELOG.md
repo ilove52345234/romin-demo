@@ -1,3 +1,27 @@
+## [1.2.0](https://github.com/ilove52345234/romin-demo/compare/prod/v1.1.3...prod/v1.2.0) (2025-01-17)
+
+
+### 🔀 Pull request
+
+* Merge pull request #44 from ilove52345234/develop ([b8aa1ee](https://github.com/ilove52345234/romin-demo/commit/b8aa1eee38faddc33bce15408ed22512d53e6035)), closes [#44](https://github.com/ilove52345234/romin-demo/issues/44)
+* Merge pull request #43 from ilove52345234/develop-test2 ([f9612d2](https://github.com/ilove52345234/romin-demo/commit/f9612d277f5d5e69cec724d7029a959bdac0fcf3)), closes [#43](https://github.com/ilove52345234/romin-demo/issues/43)
+* Merge pull request #42 from ilove52345234/develop-test1 ([f5dac03](https://github.com/ilove52345234/romin-demo/commit/f5dac03eb3843b39634459e2359bd5ced71230db)), closes [#42](https://github.com/ilove52345234/romin-demo/issues/42)
+* Merge pull request #41 from ilove52345234/develop ([18c5718](https://github.com/ilove52345234/romin-demo/commit/18c5718dd55fe52dfb6fae39c992c2218e7e9b90)), closes [#41](https://github.com/ilove52345234/romin-demo/issues/41)
+* Merge pull request #39 from ilove52345234/develop-test1 ([041aaed](https://github.com/ilove52345234/romin-demo/commit/041aaed6e93975d1b4c35a5174c3caa68b9f181b)), closes [#39](https://github.com/ilove52345234/romin-demo/issues/39)
+* Merge pull request #40 from ilove52345234/develop-test2 ([d04de8c](https://github.com/ilove52345234/romin-demo/commit/d04de8ceec6d72f227a2eb6485229288e928eeb5)), closes [#40](https://github.com/ilove52345234/romin-demo/issues/40)
+
+
+### 🐞 Bug Fixes
+
+* 修改BUG (by @romin.zhang) ([72ef454](https://github.com/ilove52345234/romin-demo/commit/72ef454a3187460ee8d32433b9aea38c77f629e8))
+* 測試修改 (by @romin.zhang) ([b764270](https://github.com/ilove52345234/romin-demo/commit/b76427067137d447b8e1bca1ec4b4cb48e900d72))
+
+
+### ✨ Features
+
+* 新增 (by @romin.zhang) ([7a7f7f8](https://github.com/ilove52345234/romin-demo/commit/7a7f7f8af8701eb630d3154c9114886b4b1c1bfe))
+* 新增功能 (by @romin.zhang) ([64a3e30](https://github.com/ilove52345234/romin-demo/commit/64a3e30add1803774ff7266c0561173a65792ec2))
+
 ## [1.1.3](https://github.com/ilove52345234/romin-demo/compare/prod/v1.1.2...prod/v1.1.3) (2025-01-16)
 
 
