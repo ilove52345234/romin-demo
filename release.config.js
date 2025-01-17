@@ -1,6 +1,4 @@
-
-
-const customTransform = async (commit, context) => {
+const customTransform = (commit, context) => {
     // if (commit.message && commit.message.includes('release/')) {
     //     commit.type = '🚀 JIRA';
     //     const releasePart = commit.message
@@ -10,52 +8,13 @@ const customTransform = async (commit, context) => {
     //     commit.subject = `[${releasePart}](https://104corp.atlassian.net/browse/${releasePart})`;
     // } else
 
-    const {Octokit} = await import("@octokit/rest");
-    const octokit = new Octokit({auth: process.env.GITHUB_TOKEN});
-    // GitHub 相關環境變數
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
-
-    console.log('這是commit~~~~~~~~~~~~~')
-    console.log(commit);
     if (commit.message && commit.message.includes('pull request')) {
-        let description = null;
-        let releasePart = null;
-        try {
-            const response = await octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}', {
-                owner: owner,
-                repo: repo,
-                commit_sha: commit.hash
-            });
-            // const {data} = await octokit.request({
-            //     owner,
-            //     repo,
-            //     commit_sha: commit.hash
-            // });
-
-            console.log('這是resp')
-            console.log(response)
-            console.log('這是data')
-            console.log(response.data)
-            console.log('這是')
-            console.log(response.data.title)
-            description = response.data.title;
-        } catch (e) {
-            console.error(e);
-        }
-
-        if (description) {
-            releasePart = description.match(/release\/(\S+)/);
-        }
-
-
+        const releasePart = (commit.message.split('\n')[2] || '').match(/release\/(\S+)/);
         if (releasePart) {
             commit.type = '🚀 JIRA';
             commit.subject = `[${releasePart[1]}](https://104corp.atlassian.net/browse/${releasePart[1]})`;
         } else {
             commit.type = '🔀 Pull request';
-            if (description) {
-                commit.subject = commit.subject.replace(/Merge pull request/, description);
-            }
         }
     } else if (commit.type === `feat`) {
         commit.type = `✨ Features`
@@ -111,12 +70,12 @@ const customTransform = async (commit, context) => {
     if (!commit.subject) commit.subject = '';
     return commit
 };
+parserOpts = {
+    mergePattern: /^Merge pull request #(\d+) from (.*)$/,
+    mergeCorrespondence: ["id", "source"]
+}
 
-//
-// parserOpts = {
-//     mergePattern: /^Merge pull request #(\d+) from (.*)$/,
-//     mergeCorrespondence: ["id", "source"]
-// }
+
 module.exports = {
     branches: [
         {
@@ -133,11 +92,7 @@ module.exports = {
         [
             "@semantic-release/commit-analyzer",
             {
-                "preset": "conventionalCommits",
-                "parserOpts": {
-                    mergePattern: /^Merge pull request #(\d+) from (.*)$/,
-                    mergeCorrespondence: ["id", "source"]
-                }
+                "preset": "conventionalCommits"
             }
         ],
         [
