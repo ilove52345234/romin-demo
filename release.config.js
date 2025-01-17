@@ -1,4 +1,5 @@
 
+
 const customTransform = async (commit, context) => {
     // if (commit.message && commit.message.includes('release/')) {
     //     commit.type = '🚀 JIRA';
@@ -9,7 +10,7 @@ const customTransform = async (commit, context) => {
     //     commit.subject = `[${releasePart}](https://104corp.atlassian.net/browse/${releasePart})`;
     // } else
 
-    const { Octokit } = await import("@octokit/rest");
+    const {Octokit} = await import("@octokit/rest");
     const octokit = new Octokit({auth: process.env.GITHUB_TOKEN});
     // GitHub 相關環境變數
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
@@ -19,12 +20,19 @@ const customTransform = async (commit, context) => {
         let description = null;
         let releasePart = null;
         try {
-            const {data} = await octokit.repos.getCommit({
+            const {data} = await octokit.repos.request({
                 owner,
                 repo,
                 commit_sha: commit.hash
             });
-            description = data.commit.message;
+
+            console.log('這是resp')
+            console.log(data)
+            console.log('這是data')
+            console.log(data.data)
+            console.log('這是')
+            console.log(data.data.title)
+            description = data.data.title;
         } catch (e) {
             console.error(e);
         }
@@ -97,12 +105,12 @@ const customTransform = async (commit, context) => {
     if (!commit.subject) commit.subject = '';
     return commit
 };
-parserOpts = {
-    mergePattern: /^Merge pull request #(\d+) from (.*)$/,
-    mergeCorrespondence: ["id", "source"]
-}
 
-
+//
+// parserOpts = {
+//     mergePattern: /^Merge pull request #(\d+) from (.*)$/,
+//     mergeCorrespondence: ["id", "source"]
+// }
 module.exports = {
     branches: [
         {
@@ -119,7 +127,11 @@ module.exports = {
         [
             "@semantic-release/commit-analyzer",
             {
-                "preset": "conventionalCommits"
+                "preset": "conventionalCommits",
+                "parserOpts": {
+                    mergePattern: /^Merge pull request #(\d+) from (.*)$/,
+                    mergeCorrespondence: ["id", "source"]
+                }
             }
         ],
         [
