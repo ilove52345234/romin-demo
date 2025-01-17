@@ -1,3 +1,26 @@
+## [1.3.0](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.6...prod/v1.3.0) (2025-01-17)
+
+
+### 🚀 JIRA
+
+* [ITPMSYSREQ-7129](https://104corp.atlassian.net/browse/ITPMSYSREQ-7129) (by @GitHub) ([c3acca0](https://github.com/ilove52345234/romin-demo/commit/c3acca019820b0be780688a798ebec22747c292e)), closes [#54](https://github.com/ilove52345234/romin-demo/issues/54)
+
+
+### 🔀 Pull request
+
+* Merge pull request #52 from ilove52345234/develop-test2 ([f771ff9](https://github.com/ilove52345234/romin-demo/commit/f771ff979e32e27079a2fc20f7f5aa067bbfb7d8)), closes [#52](https://github.com/ilove52345234/romin-demo/issues/52)
+* Merge pull request #53 from ilove52345234/develop-test1 ([71a0126](https://github.com/ilove52345234/romin-demo/commit/71a01266cf4d6f8274f0da6b3b86a2e38b39d238)), closes [#53](https://github.com/ilove52345234/romin-demo/issues/53)
+
+
+### 🐞 Bug Fixes
+
+* 修改BUG (by @romin.zhang) ([e2a0c65](https://github.com/ilove52345234/romin-demo/commit/e2a0c650538245d386d8949b6ab0f5ab7ceee7a0))
+
+
+### ✨ Features
+
+* 新增功能 (by @romin.zhang) ([2584f08](https://github.com/ilove52345234/romin-demo/commit/2584f08281f395e985dd307df9c27d70c6613936))
+
 ## [1.2.6](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.5...prod/v1.2.6) (2025-01-17)
 
 
