@@ -20,19 +20,24 @@ const customTransform = async (commit, context) => {
         let description = null;
         let releasePart = null;
         try {
-            const {data} = await octokit.repos.request({
-                owner,
-                repo,
+            const response = await octokit.request('GET /repos/{owner}/{repo}/commits/{commit_sha}', {
+                owner: owner,
+                repo: repo,
                 commit_sha: commit.hash
             });
+            // const {data} = await octokit.request({
+            //     owner,
+            //     repo,
+            //     commit_sha: commit.hash
+            // });
 
             console.log('這是resp')
-            console.log(data)
+            console.log(response)
             console.log('這是data')
-            console.log(data.data)
+            console.log(response.data)
             console.log('這是')
-            console.log(data.data.title)
-            description = data.data.title;
+            console.log(response.data.title)
+            description = response.data.title;
         } catch (e) {
             console.error(e);
         }
