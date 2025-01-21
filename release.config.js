@@ -1,17 +1,8 @@
 const customTransform = (commit, context) => {
-    // if (commit.message && commit.message.includes('release/')) {
-    //     commit.type = '🚀 JIRA';
-    //     const releasePart = commit.message
-    //         .split('release/')[1]
-    //         .split('\n')[0]
-    //         .split(' ')[0];
-    //     commit.subject = `[${releasePart}](https://104corp.atlassian.net/browse/${releasePart})`;
-    // } else
-
     if (commit.message && commit.message.includes('pull request')) {
 
-        let  description = commit.message.split('\n')[2] || '';
-        const releasePart = description.match(/release\/(\S+)/) ;
+        let description = commit.message.split('\n')[2] || '';
+        const releasePart = description.match(/release\/(\S+)/);
         if (releasePart) {
             commit.type = '🚀 JIRA';
             commit.subject = `[${releasePart[1]}](https://104corp.atlassian.net/browse/${releasePart[1]})`;
@@ -90,10 +81,8 @@ module.exports = {
         },
     ],
     tagFormat: "prod/v${version}",
-    // releaseRules: [{ "type": "chore", "release": "patch" }],
 
     plugins: [
-        // "@semantic-release/commit-analyzer",
         [
             "@semantic-release/commit-analyzer",
             {
@@ -130,7 +119,6 @@ module.exports = {
                 }
             }
         ],
-        // '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
         '@semantic-release/github',
         '@semantic-release/git',
