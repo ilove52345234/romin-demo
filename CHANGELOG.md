@@ -1,3 +1,26 @@
+## [1.4.0](https://github.com/ilove52345234/romin-demo/compare/prod/v1.3.0...prod/v1.4.0) (2025-01-17)
+
+
+### 🚀 JIRA
+
+* [ITPMSYSREQ-7130](https://104corp.atlassian.net/browse/ITPMSYSREQ-7130) (by @GitHub) ([82953ca](https://github.com/ilove52345234/romin-demo/commit/82953cab68872fd18754c268ade7fab63cbe9437)), closes [#57](https://github.com/ilove52345234/romin-demo/issues/57)
+
+
+### 🔀 Pull request
+
+* 修正金額錯誤 (by @GitHub) ([7433fb0](https://github.com/ilove52345234/romin-demo/commit/7433fb0cc75a80882eb9b73fea40880d598eaf38)), closes [#55](https://github.com/ilove52345234/romin-demo/issues/55)
+* 新增活期存款 (by @GitHub) ([08f00ed](https://github.com/ilove52345234/romin-demo/commit/08f00ed45107eeb9c05232aad436c86ce83f6568)), closes [#56](https://github.com/ilove52345234/romin-demo/issues/56)
+
+
+### 🐞 Bug Fixes
+
+* 修改BUG (by @romin.zhang) ([88f5d7f](https://github.com/ilove52345234/romin-demo/commit/88f5d7f042db6e70e0771bf6c5d5a3d9c0ac9f35))
+
+
+### ✨ Features
+
+* 新增功能 (by @romin.zhang) ([1ed8e25](https://github.com/ilove52345234/romin-demo/commit/1ed8e25ea64562c8cac17550becf96c0e55e1ddd))
+
 ## [1.3.0](https://github.com/ilove52345234/romin-demo/compare/prod/v1.2.6...prod/v1.3.0) (2025-01-17)
 
 
