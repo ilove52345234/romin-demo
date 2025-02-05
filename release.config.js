@@ -119,7 +119,10 @@ module.exports = {
                 }
             }
         ],
-        '@semantic-release/changelog',
+        [
+            '@semantic-release/changelog',
+            { failSafe: true } // 讓 changelog 出錯時不影響後續步驟
+        ],
         '@semantic-release/github',
         '@semantic-release/git',
     ]
